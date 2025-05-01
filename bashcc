@@ -1,0 +1,1 @@
+cc -Wall -Wextra -Werror minishell.c syntax_checker/syntax_checker.c syntax_checker/checkers/check_chevron.c syntax_checker/check_else/check_else.c syntax_checker/checkers/check_pipe.c syntax_checker/checkers/check_cote.c ft_printf/libftprintf.a libft/libft.a -lreadline 

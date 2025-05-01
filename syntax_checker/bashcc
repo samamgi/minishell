@@ -1,0 +1,1 @@
+cc -Wall -Wextra -Werror ./main_test.c syntax_checker.c ./checkers/check_chevron.c check_else/check_else.c ./checkers/check_pipe.c ./checkers/check_cote.c ../ft_printf/libftprintf.a ../libft/libft.a -lreadline
