@@ -13,25 +13,25 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <readline/readline.h>
-#include <readline/history.h>
-#include "libft/libft.h"
-#include "ft_printf/ft_printf.h"
+# include "ft_printf/ft_printf.h"
+# include "libft/libft.h"
+# include <readline/history.h>
+# include <readline/readline.h>
+# include <stdio.h>
+# include <stdlib.h>
 
-int	space(char c);
+int		space(char c);
 
 void	msg_syntax_error(char c);
 
-int	check_cote(char *line);
+int		check_cote(char *line);
 
-int	check_else(char *line);
+int		check_else(char *line);
 
-int	check_chevron(char *line);
+int		check_chevron(char *line);
 
-int	check_pipe(char *line);
+int		check_pipe(char *line);
 
-int	syntax_checker(char *line);
+int		syntax_checker(char *line);
 
 #endif
