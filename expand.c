@@ -1,0 +1,127 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   expand.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ssadi-ou <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/07 03:02:51 by ssadi-ou          #+#    #+#             */
+/*   Updated: 2025/05/13 02:25:10 by ssadi-ou         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "minishell.h"
+
+void	expand_util(char *line, int *i, char **result, t_env *env_list);
+
+char	*strjoin_and_free(char *s1, char const *s2)
+{
+	char	*str;
+	size_t	j;
+	size_t	i;
+
+	i = 0;
+	j = 0;
+	str = (char *)malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
+	if (!str)
+		return (NULL);
+	while (s1[j])
+	{
+		str[i] = s1[j];
+		i++;
+		j++;
+	}
+	j = 0;
+	while (s2[j])
+	{
+		str[i] = s2[j];
+		i++;
+		j++;
+	}
+	str[i] = 0;
+	return (free(s1), str);
+}
+
+static void	expand_status_value(char **result, int last_status)
+{
+	char	*status;
+
+	status = ft_itoa(last_status);
+	if (status)
+	{
+		*result = strjoin_and_free(*result, status);
+		free(status);
+	}
+}
+
+static void	append_plain_char(char **result, char c)
+{
+	char	tmp[2];
+
+	tmp[0] = c;
+	tmp[1] = '\0';
+	*result = strjoin_and_free(*result, tmp);
+}
+
+static void	expand_loop(char *line, t_env *env_list, char **result,
+		int last_status)
+{
+	int	i;
+
+	i = 0;
+	while (line[i])
+	{
+		if (line[i] == '$' && line[i + 1] == '?')
+		{
+			expand_status_value(result, last_status);
+			i += 2;
+		}
+		else if (line[i] == '$' && line[i + 1]
+			&& (ft_isalnum(line[i + 1]) || line[i + 1] == '_'))
+			expand_util(line, &i, result, env_list);
+		else
+		{
+			append_plain_char(result, line[i]);
+			i++;
+		}
+	}
+}
+
+char	*expand_variables(char *line, t_env *env_list, int last_status)
+{
+	char	*result;
+
+	if (ft_strlen(line) == 0)
+		return (NULL);
+	set_doublecotes(line);
+	result = malloc(1);
+	if (!result)
+		return (NULL);
+	result[0] = '\0';
+	expand_loop(line, env_list, &result, last_status);
+	set_doublecotes(result);
+	return (result);
+}
+
+/*int	main(int ac, char **av)
+{
+	char	*line;
+
+	(void)av;
+	(void)ac;
+	while (1)
+	{
+		line = readline("minishell: ");
+		if (!line)
+			return (0);
+		if (ft_strnstr(line, "exit", 4))
+		{
+			free(line);
+			return (0);
+		}
+		if (syntax_checker(line) == 1)
+			line = expand_variables(line);
+		free(line);
+	}
+	return (0);
+}*/
