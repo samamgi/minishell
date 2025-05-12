@@ -39,11 +39,14 @@ int					operators(char c);
 
 int					words(char c);
 
+char    *expand_variables(char *line);
+
+void    set_doublecotes(char *line);
+
 typedef enum e_token_type
 {
 	T_CMD,
 	T_ARG,
-	T_WORD,
 	T_PIPE,
 	T_REDIR_IN,
 	T_REDIR_OUT,
