@@ -16,8 +16,6 @@ int	syntax_checker(char *line)
 {
 	if (ft_strlen(line) == 0)
 		return (0);
-	if (!line)
-		return (0);
 	if (check_cote(line) == 0 || check_pipe(line) == 0
 		|| check_chevron(line) == 0 || check_else(line) == 0)
 		return (0);

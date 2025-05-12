@@ -6,7 +6,7 @@
 /*   By: ssadi-ou <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/01 19:02:50 by ssadi-ou          #+#    #+#             */
-/*   Updated: 2025/05/03 20:35:25 by ssadi-ou         ###   ########.fr       */
+/*   Updated: 2025/05/07 03:37:51 by ssadi-ou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,7 +150,7 @@ void	set_tokens(char *line)
 	}
 }
 
-int	main(int ac, char **av)
+/*int	main(int ac, char **av)
 {
 	char	*line;
 
@@ -169,4 +169,4 @@ int	main(int ac, char **av)
 		free(line);
 	}
 	return (0);
-}
+}*/
