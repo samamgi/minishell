@@ -6,7 +6,7 @@
 /*   By: ssadi-ou <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/07 03:02:51 by ssadi-ou          #+#    #+#             */
-/*   Updated: 2025/05/12 17:41:13 by ssadi-ou         ###   ########.fr       */
+/*   Updated: 2025/05/13 02:25:10 by ssadi-ou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ char	*expand_variables(char *line)
 		}
 	}
 	set_doublecotes(result);
-	return (free(line), result);
+	return (result);
 }
 
 /*int	main(int ac, char **av)

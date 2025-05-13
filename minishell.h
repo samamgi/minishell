@@ -39,9 +39,9 @@ int					operators(char c);
 
 int					words(char c);
 
-char    *expand_variables(char *line);
+char				*expand_variables(char *line);
 
-void    set_doublecotes(char *line);
+void				set_doublecotes(char *line);
 
 typedef enum e_token_type
 {
@@ -62,5 +62,33 @@ typedef struct s_token
 	bool			double_quotes;
 	struct s_token	*next;
 }					t_token;
+
+void				set_rdappend(char *line, int *i, t_token **lst);
+
+void				set_heredoc(char *line, int *i, t_token **lst);
+
+void				set_rdout(char *line, int *i, t_token **lst);
+
+void				set_rdin(char *line, int *i, t_token **lst);
+
+void				set_pipe(char *line, int *i, t_token **lst);
+
+void				set_word(char *line, int *i, t_token **lst);
+
+void				set_tokens_util(char *line, int *i, t_token **lst);
+
+void				token_set_quotes(t_token *lst);
+
+void				print_token(t_token *lst);
+
+void				token_clear(t_token *lst);
+
+void				tokenizer(t_token **lst, char *token, t_token_type type);
+
+char				*word_else(char *line, int *i, int *start);
+
+char				*word(char *line, int *i);
+
+t_token				*set_tokens(char *line);
 
 #endif

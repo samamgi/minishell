@@ -6,7 +6,7 @@
 /*   By: ssadi-ou <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/01 19:02:50 by ssadi-ou          #+#    #+#             */
-/*   Updated: 2025/05/13 05:27:56 by ssadi-ou         ###   ########.fr       */
+/*   Updated: 2025/05/13 05:20:32 by ssadi-ou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,10 +232,10 @@ int	main(int ac, char **av)
 
 	(void)av;
 	(void)ac;
-/*	while (1)
-	{*/
-		//line = readline("minishell: ");
-		 line = "< infile echo arg1 arg2 arg3 | echo2 arg1 arg2 arg3 > outfile";
+	while (1)
+	{
+		line = readline("minishell: ");
+		// line = "< infile echo arg1 arg2 arg3 | echo2 arg1 arg2 arg3 > outfile";
 		// line = NULL;
 		if (ft_strnstr(line, "exit", 4))
 		{
@@ -251,6 +251,6 @@ int	main(int ac, char **av)
 			print_token(lst);
 			token_clear(lst);
 		}
-	//}
+	}
 	return (0);
 }
