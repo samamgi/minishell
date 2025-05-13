@@ -58,8 +58,6 @@ typedef struct s_token
 {
 	char			*value;
 	t_token_type	type;
-	bool			single_quotes;
-	bool			double_quotes;
 	struct s_token	*next;
 }					t_token;
 

@@ -26,9 +26,7 @@ void	token_clear(t_token *lst)
 {
 	t_token	*current;
 	t_token	*tmp;
-	int		i;
 
-	i = 0;
 	current = lst;
 	while (current)
 	{

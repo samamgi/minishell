@@ -22,8 +22,6 @@ void	tokenizer(t_token **lst, char *token, t_token_type type)
 		return ;
 	str->value = token;
 	str->type = type;
-	str->single_quotes = false;
-	str->double_quotes = false;
 	str->next = NULL;
 	if (!*lst)
 		*lst = str;

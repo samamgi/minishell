@@ -6,237 +6,150 @@
 /*   By: ssadi-ou <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/01 19:02:50 by ssadi-ou          #+#    #+#             */
-/*   Updated: 2025/05/13 05:27:56 by ssadi-ou         ###   ########.fr       */
+/*   Updated: 2025/05/13 07:33:45 by ssadi-ou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-/*int	operators(char c)
+/*typedef enum e_redir_type
 {
-	return (c == '>' || c == '<' || c == '|');
-}
+	T_REDIR_IN,
+	T_REDIR_OUT,
+	T_REDIR_APPEND,
+	T_HEREDOC
+}	t_redir_type;*/
 
-int	words(char c)
+typedef struct s_redir
 {
-	return (!operators(c) && (!((c >= 9 && c <= 13) || c == 32)));
-}*/
+	t_token_type	type;
+	char		*file;
+	struct s_redir	*next;
+}	t_redir;
 
-/*void	tokenizer(t_token **lst, char *token, t_token_type type)
+typedef struct s_cmd
 {
-	t_token	*str;
-	t_token	*current;
+	char		**args;
+	t_redir		*redir;
+	struct s_cmd	*next;
+}	t_cmd;
 
-	str = (t_token *)malloc(sizeof(t_token));
-	if (!str)
-		return ;
-	str->value = token;
-	str->type = type;
-	str->single_quotes = false;
-	str->double_quotes = false;
-	str->next = NULL;
-	if (!*lst)
-		*lst = str;
-	else
-	{
-		current = *lst;
-		while (current->next)
-			current = current->next;
-		current->next = str;
-	}
-}*/
-
-/*char	*word_else(char *line, int *i, int *start)
+t_redir	*set_redir(t_token_type token, char *value)
 {
-	while (line[*i] && !operators(line[*i]) && (!((line[*i] >= 9
-					&& line[*i] <= 13) || line[*i] == 32)))
-		(*i)++;
-	while (line[*i] && ((line[*i] >= 9 && line[*i] <= 13) || line[*i] == 32))
-		(*i)++;
-	return (ft_substr(line, (*start), ((*i) - (*start))));
-}
+	t_redir	*new;
 
-char	*word(char *line, int *i)
-{
-	int		start;
-	char	*substr;
-
-	while (line[*i] && ((line[*i] >= 9 && line[*i] <= 13) || line[*i] == 32))
-		(*i)++;
-	start = *i;
-	if (line[*i] && (line[*i] == '\'' || line[*i] == '"'))
-	{
-		(*i)++;
-		start++;
-		while (line[*i] && line[*i] != '\'' && line[*i] != '"'
-			&& (!((line[*i] >= 9 && line[*i] <= 13) || line[*i] == 32)))
-			(*i)++;
-		substr = ft_substr(line, start, ((*i) - (start)));
-		if (line[*i] && (line[*i] == '"' || line[*i] == '\''))
-			(*i)++;
-		while (line[*i] && ((line[*i] >= 9 && line[*i] <= 13)
-				|| line[*i] == 32))
-			(*i)++;
-		return (substr);
-	}
-	else
-		return (word_else(line, i, &start));
-}*/
-
-/*void	token_clear(t_token *lst)
-{
-	t_token	*current;
-	t_token	*tmp;
-	int		i;
-
-	i = 0;
-	current = lst;
-	while (current)
-	{
-		tmp = current;
-		current = current->next;
-		free(tmp->value);
-		free(tmp);
-	}
-}*/
-
-/*void	set_word(char *line, int *i, t_token **lst)
-{
-	tokenizer(lst, word(line, i), T_CMD);
-	while (line[*i] && words(line[*i]))
-		tokenizer(lst, word(line, i), T_ARG);
-}*/
-
-/*void	set_rdappend(char *line, int *i, t_token **lst)
-{
-	(*i) += 2;
-	tokenizer(lst, word(line, i), T_REDIR_APPEND);
-}
-
-void	set_heredoc(char *line, int *i, t_token **lst)
-{
-	(*i) += 2;
-	tokenizer(lst, word(line, i), T_HEREDOC);
-}
-
-void	set_rdout(char *line, int *i, t_token **lst)
-{
-	(*i)++;
-	tokenizer(lst, word(line, i), T_REDIR_OUT);
-}
-
-void	set_rdin(char *line, int *i, t_token **lst)
-{
-	(*i)++;
-	tokenizer(lst, word(line, i), T_REDIR_IN);
-}
-
-void	set_pipe(char *line, int *i, t_token **lst)
-{
-	tokenizer(lst, ft_substr(line, (*i), 1), T_PIPE);
-	(*i)++;
-}*/
-
-// void	set_tokens_util(char *line, int *i, t_token **lst)
-// {
-// 	if (line[*i] && words(line[*i]))
-// 		return (set_word(line, i, lst));
-// 	if (line[*i] && line[*i] == '>' && line[(*i) + 1] == '>')
-// 		return (set_rdappend(line, i, lst));
-// 	if (line[*i] && line[*i] == '<' && line[(*i) + 1] == '<')
-// 		return (set_heredoc(line, i, lst));
-// 	if (line[*i] && line[*i] == '>')
-// 		return (set_rdout(line, i, lst));
-// 	if (line[*i] && line[*i] == '<')
-// 		return (set_rdin(line, i, lst));
-// 	if (line[*i] && line[*i] == '|')
-// 		return (set_pipe(line, i, lst));
-// 	else
-// 		(*i)++;
-// }
-
-// void	token_set_quotes(t_token *lst)
-// {
-// 	t_token	*current;
-// 	int		i;
-
-// 	if (!lst)
-// 		return ;
-// 	current = lst;
-// 	while (current)
-// 	{
-// 		i = 0;
-// 		while ((current->value)[i])
-// 		{
-// 			if ((current->value)[i] < 0)
-// 				(current->value)[i] *= -1;
-// 			i++;
-// 		}
-// 		current = current->next;
-// 	}
-// }
-
-/*t_token	*set_tokens(char *line)
-{
-	t_token	*lst;
-	int		i;
-
-	if (ft_strlen(line) == 0)
+	new = (t_redir *)malloc(sizeof(t_redir));
+	if (!new)
 		return (NULL);
-	i = 0;
-	lst = NULL;
-	while (line[i])
-	{
-		while (line[i] && ((line[i] >= 9 && line[i] <= 13) || line[i] == 32))
-			i++;
-		if (!line[i])
-			break ;
-		set_tokens_util(line, &i, &lst);
-	}
-	token_set_quotes(lst);
-	return (lst);
-}*/
+	new->type = token;
+	new->file = value;
+	new->next = NULL;
+	return (new);
+}
 
-/*void	print_token(t_token *lst)
+void	parse_tokens(t_token *lst)
 {
+	t_cmd	*pipes;
 	t_token	*current;
+	t_redir	*next;
+	int	i;
 
 	if (!lst)
-		return ;
+		return;
+	pipes = (t_cmd *)malloc(sizeof(t_cmd));
+	if (!pipes)
+		return;
+	i = 0;
 	current = lst;
 	while (current)
 	{
-		if (current->type == T_REDIR_OUT)
-			ft_printf("type = REDIR_OUT\n");
-		if (current->type == T_REDIR_IN)
-			ft_printf("type = REDIR_IN\n");
-		if (current->type == T_PIPE)
-			ft_printf("type = PIPE\n");
-		if (current->type == T_REDIR_APPEND)
-			ft_printf("type = REDIR_APPEND\n");
-		if (current->type == T_HEREDOC)
-			ft_printf("type = HERE_DOC\n");
 		if (current->type == T_CMD)
-			ft_printf("type = CMD\n");
-		if (current->type == T_ARG)
-			ft_printf("type = ARG\n");
-		ft_printf("value = %s\n\n", current->value);
-		current = current->next;
+		{
+			while (current && (current->type == T_CMD || current->type == T_ARG))
+			{
+				i++;
+				current = current->next;
+			}
+		}
+		else
+			current = current->next;
 	}
-}*/
+	current = lst;
+	pipes->args = (char **)malloc(sizeof(char *) * (i + 1));
+	(pipes->args)[i] = NULL;
+	i = 0;
+	while (current)
+        {
+                if (current->type == T_CMD || current->type == T_ARG)
+                {
+			(pipes->args)[i] = current->value;
+			i++;
+                }
+		current = current->next;
+        }
+	current = lst;
+	i = 0;
+	while (current)
+	{
+		if (current && (current->type == T_REDIR_IN || current->type == T_REDIR_OUT || current->type == T_REDIR_APPEND || current->type == T_HEREDOC))
+		{
+			(pipes->redir) = set_redir(current->type, current->value);
+			next = (pipes->redir);
+			current = current->next;
+			while (current && (current->type == T_REDIR_IN || current->type == T_REDIR_OUT || current->type == T_REDIR_APPEND || current->type == T_HEREDOC))
+			{
+				next->next = set_redir(current->type, current->value);
+				next = next->next;
+				current = current->next;
+			}
+		}
+		else
+			current = current->next;
+	}
+	pipes->next = NULL;
+	i = 0;
+	ft_printf("Pipe_struct 1 :\n\n");
+	ft_printf("Cmd : %s\n", (pipes->args[i]));
+	i++;
+	while ((pipes->args)[i] != NULL)
+	{
+		ft_printf("Cmd ARGS : %s\n", (pipes->args[i]));
+		i++;
+	}
+	ft_printf("\nRedirections :\n");
+	next = (pipes->redir);
+	while (next)
+	{
+		if (next->type == T_REDIR_IN)
+			ft_printf("Redirection type : REDIR_IN ");
+		if (next->type == T_REDIR_OUT)
+                        ft_printf("Redirection type : REDIR_OUT ");
+		if (next->type == T_REDIR_APPEND)
+                        ft_printf("Redirection type : REDIR_APPEND ");
+		if (next->type == T_HEREDOC)
+                        ft_printf("Redirection type : HEREDOC ");
+		ft_printf("Redirection file : %s\n", next->file);
+		next = next->next;
+	}	
+
+}
 
 int	main(int ac, char **av)
 {
 	char	*line;
 	t_token	*lst;
+	t_cmd	*pipes;
 
 	(void)av;
 	(void)ac;
-/*	while (1)
+	lst = NULL;
+	pipes = NULL;
+	/*while (1)
 	{*/
 		//line = readline("minishell: ");
-		 line = "< infile echo arg1 arg2 arg3 | echo2 arg1 arg2 arg3 > outfile";
+		// line = "< infile echo arg1 arg2 arg3 | echo2 arg1 arg2 arg3 > outfile";
 		// line = NULL;
+		line = "echo test1 test2 test3 > arg1 >> arg2 < arg3";
 		if (ft_strnstr(line, "exit", 4))
 		{
 			free(line);
@@ -248,8 +161,11 @@ int	main(int ac, char **av)
 			line = expand_variables(line);
 			lst = set_tokens(line);
 			free(line);
+			if (!lst)
+				ft_printf("lst error\n");
 			print_token(lst);
-			token_clear(lst);
+			parse_tokens(lst);
+			//token_clear(lst);
 		}
 	//}
 	return (0);

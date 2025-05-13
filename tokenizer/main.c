@@ -19,14 +19,13 @@
 
 int	words(char c)
 {
-	return (!operators(c) && (!((c >= 9 && c <= 13) || c == 32)));
-}*/
-
-/*void	tokenizer(t_token **lst, char *token, t_token_type type)
-{
 	t_token	*str;
 	t_token	*current;
 
+	return (!operators(c) && (!((c >= 9 && c <= 13) || c == 32)));
+}*/
+/*void	tokenizer(t_token **lst, char *token, t_token_type type)
+{
 	str = (t_token *)malloc(sizeof(t_token));
 	if (!str)
 		return ;
@@ -45,7 +44,6 @@ int	words(char c)
 		current->next = str;
 	}
 }*/
-
 /*char	*word_else(char *line, int *i, int *start)
 {
 	while (line[*i] && !operators(line[*i]) && (!((line[*i] >= 9
@@ -60,6 +58,9 @@ char	*word(char *line, int *i)
 {
 	int		start;
 	char	*substr;
+	t_token	*current;
+	t_token	*tmp;
+	int		i;
 
 	while (line[*i] && ((line[*i] >= 9 && line[*i] <= 13) || line[*i] == 32))
 		(*i)++;
@@ -82,13 +83,8 @@ char	*word(char *line, int *i)
 	else
 		return (word_else(line, i, &start));
 }*/
-
 /*void	token_clear(t_token *lst)
 {
-	t_token	*current;
-	t_token	*tmp;
-	int		i;
-
 	i = 0;
 	current = lst;
 	while (current)
@@ -99,14 +95,12 @@ char	*word(char *line, int *i)
 		free(tmp);
 	}
 }*/
-
 /*void	set_word(char *line, int *i, t_token **lst)
 {
 	tokenizer(lst, word(line, i), T_CMD);
 	while (line[*i] && words(line[*i]))
 		tokenizer(lst, word(line, i), T_ARG);
 }*/
-
 /*void	set_rdappend(char *line, int *i, t_token **lst)
 {
 	(*i) += 2;
@@ -133,10 +127,15 @@ void	set_rdin(char *line, int *i, t_token **lst)
 
 void	set_pipe(char *line, int *i, t_token **lst)
 {
+	t_token	*lst;
+	int		i;
+	t_token	*current;
+	char	*line;
+	t_token	*lst;
+
 	tokenizer(lst, ft_substr(line, (*i), 1), T_PIPE);
 	(*i)++;
 }*/
-
 // void	set_tokens_util(char *line, int *i, t_token **lst)
 // {
 // 	if (line[*i] && words(line[*i]))
@@ -154,12 +153,10 @@ void	set_pipe(char *line, int *i, t_token **lst)
 // 	else
 // 		(*i)++;
 // }
-
 // void	token_set_quotes(t_token *lst)
 // {
 // 	t_token	*current;
 // 	int		i;
-
 // 	if (!lst)
 // 		return ;
 // 	current = lst;
@@ -175,12 +172,8 @@ void	set_pipe(char *line, int *i, t_token **lst)
 // 		current = current->next;
 // 	}
 // }
-
 /*t_token	*set_tokens(char *line)
 {
-	t_token	*lst;
-	int		i;
-
 	if (ft_strlen(line) == 0)
 		return (NULL);
 	i = 0;
@@ -196,11 +189,8 @@ void	set_pipe(char *line, int *i, t_token **lst)
 	token_set_quotes(lst);
 	return (lst);
 }*/
-
 /*void	print_token(t_token *lst)
 {
-	t_token	*current;
-
 	if (!lst)
 		return ;
 	current = lst;
@@ -224,7 +214,6 @@ void	set_pipe(char *line, int *i, t_token **lst)
 		current = current->next;
 	}
 }*/
-
 int	main(int ac, char **av)
 {
 	char	*line;
@@ -235,13 +224,10 @@ int	main(int ac, char **av)
 	while (1)
 	{
 		line = readline("minishell: ");
-		// line = "< infile echo arg1 arg2 arg3 | echo2 arg1 arg2 arg3 > outfile";
-		// line = NULL;
 		if (ft_strnstr(line, "exit", 4))
 		{
 			free(line);
-			//break ;
-			 return (0);
+			return (0);
 		}
 		if (syntax_checker(line) == 1)
 		{
