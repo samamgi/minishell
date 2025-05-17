@@ -6,7 +6,7 @@
 /*   By: ssadi-ou <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 01:24:15 by ssadi-ou          #+#    #+#             */
-/*   Updated: 2025/05/07 03:37:23 by ssadi-ou         ###   ########.fr       */
+/*   Updated: 2025/05/17 06:31:46 by ssadi-ou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,20 @@ typedef struct s_token
 	struct s_token	*next;
 }					t_token;
 
+typedef struct s_redir
+{
+	t_token_type	type;
+	char			*file;
+	struct s_redir	*next;
+}					t_redir;
+
+typedef struct s_cmd
+{
+	char			**args;
+	t_redir			*redir;
+	struct s_cmd	*next;
+}					t_cmd;
+
 void				set_rdappend(char *line, int *i, t_token **lst);
 
 void				set_heredoc(char *line, int *i, t_token **lst);
@@ -71,9 +85,10 @@ void				set_rdin(char *line, int *i, t_token **lst);
 
 void				set_pipe(char *line, int *i, t_token **lst);
 
-void				set_word(char *line, int *i, t_token **lst);
+void				set_word(char *line, int *i, t_token **lst, int *cmd);
 
-void				set_tokens_util(char *line, int *i, t_token **lst);
+void				set_tokens_util(char *line, int *i, t_token **lst,
+						int *cmd);
 
 void				token_set_quotes(t_token *lst);
 
@@ -88,5 +103,35 @@ char				*word_else(char *line, int *i, int *start);
 char				*word(char *line, int *i);
 
 t_token				*set_tokens(char *line);
+
+void				free_split(char **split);
+
+void				free_redir(t_redir *redir);
+
+void				free_cmd(t_cmd *pipe);
+
+void				print_cmd_util(t_cmd *pipes);
+
+void				print_cmd(t_cmd *pipes);
+
+t_redir				*set_redir(t_token_type token, char *value);
+
+t_cmd				*init_pipes(t_token *lst);
+
+int					token_count(t_token *lst);
+
+int					set_args(t_cmd *pipes, t_token *lst);
+
+void				cmd_set_redir(t_cmd *pipes, t_token **current,
+						t_redir **next);
+
+t_cmd				*parse_tokens(t_token *lst);
+
+void				parse_all_util2(t_token **tmp, t_token **current);
+
+void				parse_all_util(t_cmd **pipes, t_token **tmp,
+						t_token **start, t_token **current);
+
+t_cmd				*parse_all(t_token *lst);
 
 #endif

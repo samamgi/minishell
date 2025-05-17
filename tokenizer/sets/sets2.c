@@ -12,17 +12,23 @@
 
 #include "../../minishell.h"
 
-void	set_word(char *line, int *i, t_token **lst)
+void	set_word(char *line, int *i, t_token **lst, int *cmd)
 {
-	tokenizer(lst, word(line, i), T_CMD);
+	if ((*cmd) == 1)
+	{
+		(*cmd) = 0;
+		tokenizer(lst, word(line, i), T_CMD);
+	}
+	else
+		tokenizer(lst, word(line, i), T_ARG);
 	while (line[*i] && words(line[*i]))
 		tokenizer(lst, word(line, i), T_ARG);
 }
 
-void	set_tokens_util(char *line, int *i, t_token **lst)
+void	set_tokens_util(char *line, int *i, t_token **lst, int *cmd)
 {
 	if (line[*i] && words(line[*i]))
-		return (set_word(line, i, lst));
+		return (set_word(line, i, lst, cmd));
 	if (line[*i] && line[*i] == '>' && line[(*i) + 1] == '>')
 		return (set_rdappend(line, i, lst));
 	if (line[*i] && line[*i] == '<' && line[(*i) + 1] == '<')
@@ -32,7 +38,10 @@ void	set_tokens_util(char *line, int *i, t_token **lst)
 	if (line[*i] && line[*i] == '<')
 		return (set_rdin(line, i, lst));
 	if (line[*i] && line[*i] == '|')
+	{
+		(*cmd) = 1;
 		return (set_pipe(line, i, lst));
+	}
 	else
 		(*i)++;
 }

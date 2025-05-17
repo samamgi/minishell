@@ -75,18 +75,20 @@ t_token	*set_tokens(char *line)
 {
 	t_token	*lst;
 	int		i;
+	int		cmd;
 
 	if (ft_strlen(line) == 0)
 		return (NULL);
 	i = 0;
 	lst = NULL;
+	cmd = 1;
 	while (line[i])
 	{
 		while (line[i] && ((line[i] >= 9 && line[i] <= 13) || line[i] == 32))
 			i++;
 		if (!line[i])
 			break ;
-		set_tokens_util(line, &i, &lst);
+		set_tokens_util(line, &i, &lst, &cmd);
 	}
 	token_set_quotes(lst);
 	return (lst);
