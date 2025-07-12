@@ -6,7 +6,7 @@
 /*   By: ssadi-ou <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/31 05:30:15 by ssadi-ou          #+#    #+#             */
-/*   Updated: 2025/04/02 01:10:33 by ssadi-ou         ###   ########.fr       */
+/*   Updated: 2025/05/18 21:14:20 by ssadi-ou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <unistd.h>
+# include "../../minishell.h"
 
 int		check_exist(char *cmd);
 
@@ -30,11 +31,11 @@ void	put_error(char *path, int error, char **argv);
 
 char	*pathfinder(char *slash, char **split_path);
 
-void	commande(char *cmd, char **env);
+void	commande(char **cmd, char **env);
 
 void	execlast(char *slash, char **split_path, char **argv, char **env);
 
-int		execslash(char *cmd, char *path, char **env);
+int		execslash(char *cmd, char **av, char *path, char **env);
 
 void	freeall(char *slash, char *path, char **split_path, char **argv);
 

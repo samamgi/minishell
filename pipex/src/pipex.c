@@ -6,87 +6,206 @@
 /*   By: ssadi-ou <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/23 23:54:49 by ssadi-ou          #+#    #+#             */
-/*   Updated: 2025/04/02 00:52:18 by ssadi-ou         ###   ########.fr       */
+/*   Updated: 2025/05/18 20:39:49 by ssadi-ou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/pipex.h"
+#include "../../minishell.h"
 
-static void	child1(int fd1, int pipefd[2], char **av, char **env)
+char **dup_tab(char **tab)
 {
-	close(pipefd[0]);
-	fd1 = open(av[1], O_RDONLY, 0644);
-	if (fd1 == -1)
-	{
-		close(pipefd[1]);
-		perror(av[1]);
-		exit(1);
-	}
-	if (dup2(fd1, STDIN_FILENO) == -1)
-	{
-		close(fd1);
-		exit(EXIT_FAILURE);
-	}
-	close(fd1);
-	if (dup2(pipefd[1], STDOUT_FILENO) == -1)
-	{
-		close(pipefd[1]);
-		exit(EXIT_FAILURE);
-	}
-	close(pipefd[1]);
-	commande(av[2], env);
+    int i, count;
+    char **new_tab;
+
+    if (!tab)
+        return NULL;
+
+    // Compter le nombre d'éléments
+    count = 0;
+    while (tab[count])
+        count++;
+
+    // Allouer le tableau de pointeurs +1 pour le NULL final
+    new_tab = malloc(sizeof(char *) * (count + 1));
+    if (!new_tab)
+        return NULL;
+
+    // Dupliquer chaque string
+    i = 0;
+    while (i < count)
+    {
+        new_tab[i] = strdup(tab[i]);
+        if (!new_tab[i])
+        {
+            // en cas d'échec, free déjà alloué
+            while (--i >= 0)
+                free(new_tab[i]);
+            free(new_tab);
+            return NULL;
+        }
+        i++;
+    }
+    new_tab[i] = NULL; // terminer par NULL
+    return new_tab;
 }
 
-static void	child2(int fd2, int pipefd[2], char **av, char **env)
+void	set_fd(t_cmd *pipes)
 {
-	close(pipefd[1]);
-	fd2 = open(av[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd2 == -1)
+	t_redir	*current;
+	int	fd1;
+
+	current = pipes->redir;
+	while (current)
 	{
-		close(pipefd[0]);
-		perror(av[4]);
-		exit(EXIT_FAILURE);
+		if (current->type == T_REDIR_IN)
+		{
+			fd1 = open(current->file, O_RDONLY, 0644);
+			if (fd1 == -1)
+			{
+				perror(current->file);
+				exit(1);
+			}
+			if (dup2(fd1, STDIN_FILENO) == -1)
+			{
+				close(fd1);
+				exit(EXIT_FAILURE);
+			}
+			close(fd1);
+		}
+		else if (current->type == T_REDIR_OUT)
+		{
+			fd1 = open(current->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+			if (fd1 == -1)
+			{
+				perror(current->file);
+				exit(1);
+			}
+			if (dup2(fd1, STDOUT_FILENO) == -1)
+			{
+				close(fd1);
+				exit(EXIT_FAILURE);
+			}
+			close(fd1);
+		}
+		current = current->next;
 	}
-	if (dup2(fd2, STDOUT_FILENO) == -1)
-	{
-		close(fd2);
-		exit(EXIT_FAILURE);
-	}
-	close(fd2);
-	if (dup2(pipefd[0], STDIN_FILENO) == -1)
-	{
-		close(pipefd[0]);
-		exit(EXIT_FAILURE);
-	}
-	close(pipefd[0]);
-	commande(av[3], env);
 }
 
-int	main(int ac, char **av, char **env)
+void	child1(char **av, t_cmd *pipes, char **env)
 {
-	int		fd1;
-	int		fd2;
+	set_fd(pipes);
+	if (av[0])
+	{
+		commande(av, env);
+	}
+	else
+	{
+		free_cmd(pipes);
+		exit(0);
+	}
+}
+
+int	pipex(t_cmd *pipes, char **env)
+{
 	int		pipefd[2];
 	pid_t	pid;
+	t_cmd	*current;
+	int		prev_pipe;
 
-	if ((ac != 5) || (pipe(pipefd) == -1))
+	if (!pipes)
 		return (1);
-	fd1 = -1;
-	fd2 = -1;
-	pid = fork();
-	if (pid == 0)
-		child1(fd1, pipefd, av, env);
-	if (pid == -1)
-		return (close(pipefd[0]), close(pipefd[1]), -1);
-	pid = fork();
-	if (pid == 0)
-		child2(fd2, pipefd, av, env);
-	if (pid == -1)
-		return (close(pipefd[0]), close(pipefd[1]), -1);
-	close(pipefd[1]);
-	close(pipefd[0]);
-	if (fd1 == -1)
+	current = pipes;
+	if (current->next != NULL)
+	{
+		printf("\n\nCHECK\n\n");
+		current = pipes;
+		prev_pipe = -1;
+		while (current)
+		{
+			if (current->next && pipe(pipefd) == -1)
+			{
+				perror("pipe");
+				return (1);
+			}
+			pid = fork();
+			if (pid == -1)
+			{
+				perror("fork");
+				return (1);
+			}
+			if (pid == 0)
+			{
+				t_redir *r = current->redir;
+				int in_handled = 0, out_handled = 0;
+
+				while (r)
+				{
+					int fd;
+					if (r->type == T_REDIR_IN)
+					{
+						fd = open(r->file, O_RDONLY);
+						if (fd == -1)
+						{
+							perror(r->file);
+							free_cmd(pipes);
+							exit(1);
+						}
+						dup2(fd, STDIN_FILENO);
+						close(fd);
+						in_handled = 1;
+					}
+					else if (r->type == T_REDIR_OUT)
+					{
+						fd = open(r->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+						if (fd == -1)
+						{
+							perror(r->file);
+							free_cmd(pipes);
+							exit(1);
+						}
+						dup2(fd, STDOUT_FILENO);
+						close(fd);
+						out_handled = 1;
+					}
+					r = r->next;
+				}
+				if (!in_handled && prev_pipe != -1)
+					dup2(prev_pipe, STDIN_FILENO);
+				if (!out_handled && current->next)
+					dup2(pipefd[1], STDOUT_FILENO);
+
+				if (prev_pipe != -1)
+					close(prev_pipe);
+				if (current->next)
+				{
+					close(pipefd[0]);
+					close(pipefd[1]);
+				}
+				commande(current->args, env);
+				exit(1);
+			}
+			if (prev_pipe != -1)
+				close(prev_pipe);
+			if (current->next)
+			{
+				close(pipefd[1]);
+				prev_pipe = pipefd[0];
+			}
+			current = current->next;
+		}
+		while (wait(NULL) != -1);
+	}
+	else
+	{
+		pid = fork();
+		if (pid == 0)
+			child1(current->args, current, env);
+
+		if (pid == -1)
+			return (-1);
 		wait(NULL);
-	wait(NULL);
+	}
 	return (0);
 }
+

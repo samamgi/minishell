@@ -36,12 +36,15 @@ void	tokenizer(t_token **lst, char *token, t_token_type type)
 
 char	*word_else(char *line, int *i, int *start)
 {
+	int end;
+
 	while (line[*i] && !operators(line[*i]) && (!((line[*i] >= 9
 					&& line[*i] <= 13) || line[*i] == 32)))
 		(*i)++;
+	end = (*i);
 	while (line[*i] && ((line[*i] >= 9 && line[*i] <= 13) || line[*i] == 32))
 		(*i)++;
-	return (ft_substr(line, (*start), ((*i) - (*start))));
+	return (ft_substr(line, (*start), (end - (*start))));
 }
 
 char	*word(char *line, int *i)

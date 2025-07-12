@@ -1,0 +1,12 @@
+cd pipex
+
+make
+
+cd ..
+
+cc -Wall -Wextra -Werror -g3 expand.c minishell.c parser_tokenizer/utils/else.c parser_tokenizer/utils/sets.c parser_tokenizer/utils/utils.c parser_tokenizer/parser_tokenizer.c syntax_checker/syntax_checker.c syntax_checker/checkers/check_chevron.c syntax_checker/check_else/check_else.c syntax_checker/checkers/check_pipe.c syntax_checker/checkers/check_cote.c tokenizer/sets/sets1.c tokenizer/sets/sets2.c tokenizer/tokenizer.c tokenizer/token_utils.c pipex/libpipex.a ft_printf/libftprintf.a libft/libft.a -lreadline
+
+valgrind --leak-check=full --show-leak-kinds=all --leak-check=full --track-fds=yes --suppressions=readline.sup ./a.out
+
+
+(si la commande appeler renvoi un code d'erreur la liste chainee est pas liberee pendant lexecution du pprogramme et la liste apparait en still reachable tout est free et sans erreur a la fin du programme)

@@ -1,0 +1,30 @@
+{
+   readline_leak_1
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:_rl_add_history
+}
+
+{
+   readline_leak_2
+   Memcheck:Leak
+   ...
+   fun:readline
+}
+
+{
+   readline_leak_3
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:rl_copy_text
+}
+
+{
+   readline_leak_4
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:_rl_get_screen_size
+}

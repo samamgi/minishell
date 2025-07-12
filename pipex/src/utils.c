@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../inc/pipex.h"
+#include "../../minishell.h"
 
 int	check_exist(char *cmd)
 {

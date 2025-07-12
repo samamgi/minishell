@@ -223,7 +223,11 @@ int	main(int ac, char **av)
 	(void)ac;
 	while (1)
 	{
+		print_token(lst);
+
 		line = readline("minishell: ");
+		if (!line)
+		break;
 		if (ft_strnstr(line, "exit", 4))
 		{
 			free(line);

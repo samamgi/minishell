@@ -55,7 +55,15 @@ t_cmd	*parse_tokens(t_token *lst)
 	if (!pipes)
 		return (NULL);
 	if (set_args(pipes, lst) == 0)
-		return (NULL);
+	{
+		pipes->args = (char **)malloc(sizeof(char *) * 1);
+		if (!(pipes->args))
+		{
+			free(pipes);
+			return (NULL);
+		}
+		pipes->args[0] = NULL;
+	}
 	current = lst;
 	next = NULL;
 	cmd_set_redir(pipes, &current, &next);

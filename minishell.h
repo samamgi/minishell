@@ -6,7 +6,7 @@
 /*   By: ssadi-ou <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 01:24:15 by ssadi-ou          #+#    #+#             */
-/*   Updated: 2025/05/17 06:31:46 by ssadi-ou         ###   ########.fr       */
+/*   Updated: 2025/05/18 21:15:45 by ssadi-ou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,10 @@
 # include <stdbool.h>
 # include <stdio.h>
 # include <stdlib.h>
+# include <string.h>
+# include <sys/types.h>
+# include <sys/wait.h>
+
 
 int					space(char c);
 
@@ -133,5 +137,11 @@ void				parse_all_util(t_cmd **pipes, t_token **tmp,
 						t_token **start, t_token **current);
 
 t_cmd				*parse_all(t_token *lst);
+
+int     pipex(t_cmd *pipes, char **env);
+
+void    child1(char **av, t_cmd *pipes, char **env);
+
+void    set_fd(t_cmd *pipes);
 
 #endif

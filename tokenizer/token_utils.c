@@ -6,7 +6,7 @@
 /*   By: ssadi-ou <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 05:16:34 by ssadi-ou          #+#    #+#             */
-/*   Updated: 2025/05/13 05:18:16 by ssadi-ou         ###   ########.fr       */
+/*   Updated: 2025/05/18 15:45:21 by ssadi-ou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ void	print_token(t_token *lst)
 			ft_printf("type = CMD\n");
 		if (current->type == T_ARG)
 			ft_printf("type = ARG\n");
-		ft_printf("value = %s\n\n", current->value);
+		ft_printf("value = %s0\n\n", current->value);
 		current = current->next;
 	}
 }
