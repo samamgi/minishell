@@ -13,7 +13,7 @@
 #include "../inc/pipex.h"
 #include "../../minishell.h"
 
-int	execslash(char *cmd, char **av, char *path, char **env)
+int	execslash(char *cmd, t_cmd *pipes, char *path, char **env)
 {
 	if ((ft_strnstr(cmd, "./", 2)) || !path || !env || (cmd[0] == '/') || (!cmd
 			|| (cmd && ft_strlen(cmd) <= 0)))
@@ -21,9 +21,9 @@ int	execslash(char *cmd, char **av, char *path, char **env)
 		if (check_exist(cmd) == 1)
 		{
 			if (!env)
-				execve(cmd, av, NULL);
+				execve(cmd, pipes->args, NULL);
 			else
-				execve(cmd, av, env);
+				execve(cmd, pipes->args, env);
 			free(path);
 			return (1);
 		}
@@ -33,7 +33,7 @@ int	execslash(char *cmd, char **av, char *path, char **env)
 	return (0);
 }
 
-void	execlast(char *slash, char **split_path, char **argv, char **env)
+void	execlast(char *slash, char **split_path, char **env, t_cmd *pipes)
 {
 	char	*path;
 
@@ -42,39 +42,37 @@ void	execlast(char *slash, char **split_path, char **argv, char **env)
 	{
 		if (check_exist(path) == -1)
 		{
-			put_error(NULL, 2, argv);
-			freeall(slash, path, split_path, NULL);
+			freeall(slash, path, split_path);
+			free_cmd(pipes);
 			exit(126);
-			return ;
 		}
-		execve(path, argv, env);
-		freeall(slash, path, split_path, argv);
-		exit(1);
-		return ;
+		execve(path, pipes->args, env);
+		freeall(slash, path, split_path);
+		free_cmd(pipes);
+		exit(126);
 	}
-	freeall(slash, path, split_path, NULL);
-	put_error(NULL, 1, argv);
+	put_error(NULL, 1, pipes->args);
+	freeall(slash, path, split_path);
+	free_cmd(pipes); // ici il faut pas free toute la structure mais ce qui est dans la structure est deja free, ou ? jsp
 	exit(127);
 }
 
-void	commande(char **cmd, char **env)
+void	commande(char **env, t_cmd *pipes)
 {
 	char	*path;
 	char	*slash;
 	char	**split_path;
-	char	**argv;
 
 	path = getpath(env);
-	argv = cmd;
-	if (execslash(cmd[0], argv, path, env) != 0)
+	if (execslash(pipes->args[0], pipes, path, env) != 0)
 		return ;
-	slash = ft_strjoin("/", argv[0]);
+	slash = ft_strjoin("/", pipes->args[0]);
 	split_path = ft_split(path, ':');
-	if (!split_path || !slash || !argv)
+	if (!split_path || !slash || !pipes->args)
 	{
-		freeall(slash, path, split_path, NULL);
+		freeall(slash, path, split_path);
+		free_cmd(pipes);
 		exit(-1);
-		return ;
 	}
-	execlast(slash, split_path, argv, env);
+	execlast(slash, split_path, env, pipes);
 }

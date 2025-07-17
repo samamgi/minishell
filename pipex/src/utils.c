@@ -29,32 +29,23 @@ int	check_exist(char *cmd)
 	}
 }
 
-void	freeall(char *slash, char *path, char **split_path, char **argv)
+void	freeall(char *slash, char *path, char **split_path)
 {
 	int	i;
 
 	i = 0;
 	if (slash)
-		free(slash);
+		ft_free(slash);
 	if (path)
-		free(path);
+		ft_free(path);
 	if (split_path)
 	{
 		while (split_path[i])
 		{
-			free(split_path[i]);
+			ft_free(split_path[i]);
 			i++;
 		}
-		free(split_path);
-	}
-	if (argv)
-	{
-		while (argv[i])
-		{
-			free(argv[i]);
-			i++;
-		}
-		free(argv);
+		ft_free(split_path);
 	}
 }
 
@@ -80,25 +71,17 @@ void	put_error(char *path, int error, char **argv)
 	{
 		ft_putstr_fd("command not found: ", 2);
 		if (argv)
-		{
 			ft_putendl_fd(argv[0], 2);
-			freeall(NULL, NULL, NULL, argv);
-		}
 		else
 			ft_putendl_fd(path, 2);
-		exit(127);
 	}
 	if (error == 2)
 	{
 		ft_putstr_fd("Permission denied: ", 2);
 		if (argv)
-		{
 			ft_putendl_fd(argv[0], 2);
-			freeall(NULL, NULL, NULL, argv);
-		}
 		else
 			ft_putendl_fd(path, 2);
-		exit(126);
 	}
 }
 
@@ -113,10 +96,10 @@ char	*pathfinder(char *slash, char **split_path)
 	{
 		path = ft_strjoin(split_path[i], slash);
 		if (!path)
-			return (free(path), NULL);
+			return (ft_free(path), NULL);
 		if (access(path, F_OK) == 0)
 			return (path);
-		free(path);
+		ft_free(path);
 		i++;
 	}
 	return (NULL);

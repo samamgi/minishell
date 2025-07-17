@@ -140,8 +140,10 @@ t_cmd				*parse_all(t_token *lst);
 
 int     pipex(t_cmd *pipes, char **env);
 
-void    child1(char **av, t_cmd *pipes, char **env);
+void    child1(t_cmd *pipes, char **env);
 
 void    set_fd(t_cmd *pipes);
+
+void	ft_free(void *ptr);
 
 #endif

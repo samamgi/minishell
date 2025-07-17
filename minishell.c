@@ -20,6 +20,7 @@ int	main(int ac, char **av, char **env)
 
 	(void)ac;
 	(void)av;
+	(void)env;
 	lst = NULL;
 	pipes = NULL;
 	while (1)
@@ -37,6 +38,7 @@ int	main(int ac, char **av, char **env)
 		}
 		if (syntax_checker(line) == 1)
 		{
+			//free_cmd(pipes);
 			line = expand_variables(line);
 			lst = set_tokens(line);
 			free(line);
@@ -45,8 +47,14 @@ int	main(int ac, char **av, char **env)
 			print_token(lst);
 			printf("test \n\n\n\n");
 			pipes = parse_all(lst);
+			printf("pipes addr %p\n", pipes);
 			if (!pipex(pipes, env))
+			{
+				printf("pipes addr apres %p\n", pipes);
+				printf("continue");
 				continue;
+			}
+			printf("pipes addr apres %p\n", pipes);
 			//line = NULL;
 		}
 	}

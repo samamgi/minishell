@@ -31,12 +31,12 @@ void	put_error(char *path, int error, char **argv);
 
 char	*pathfinder(char *slash, char **split_path);
 
-void	commande(char **cmd, char **env);
+void	commande(char **env, t_cmd *pipes);
 
-void	execlast(char *slash, char **split_path, char **argv, char **env);
+void	execlast(char *slash, char **split_path, char **env, t_cmd *pipes);
 
-int		execslash(char *cmd, char **av, char *path, char **env);
+int		execslash(char *cmd, t_cmd *pipes, char *path, char **env);
 
-void	freeall(char *slash, char *path, char **split_path, char **argv);
+void	freeall(char *slash, char *path, char **split_path);
 
 #endif

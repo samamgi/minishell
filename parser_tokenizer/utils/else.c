@@ -19,10 +19,10 @@ void	free_split(char **split)
 	i = 0;
 	while (split[i])
 	{
-		free(split[i]);
+		ft_free(split[i]);
 		i++;
 	}
-	free(split);
+	ft_free(split);
 }
 
 void	free_redir(t_redir *redir)
@@ -35,8 +35,8 @@ void	free_redir(t_redir *redir)
 	{
 		tmp = current;
 		current = current->next;
-		free(tmp->file);
-		free(tmp);
+		ft_free(tmp->file);
+		ft_free(tmp);
 	}
 }
 
@@ -63,13 +63,16 @@ void	free_cmd(t_cmd *pipe)
 	t_cmd	*tmp;
 
 	current = pipe;
-	while (current)
+	while (current != NULL)
 	{
 		tmp = current;
 		current = current->next;
-		free_split(tmp->args);
-		free_redir(tmp->redir);
-		free(tmp);
+		if (tmp->args != NULL)
+			free_split(tmp->args);
+		if (tmp->redir != NULL)
+			free_redir(tmp->redir);
+		if (tmp != NULL)
+			free(tmp);
 	}
 }
 

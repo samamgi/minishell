@@ -12,6 +12,12 @@
 
 #include "../../minishell.h"
 
+void	ft_free(void *ptr)
+{
+	free(ptr);
+	ptr = NULL;
+}
+
 void	set_word(char *line, int *i, t_token **lst, int *cmd)
 {
 	if ((*cmd) == 1)

@@ -64,11 +64,13 @@ void	set_fd(t_cmd *pipes)
 			if (fd1 == -1)
 			{
 				perror(current->file);
+				free_cmd(pipes);
 				exit(1);
 			}
 			if (dup2(fd1, STDIN_FILENO) == -1)
 			{
 				close(fd1);
+				free_cmd(pipes);
 				exit(EXIT_FAILURE);
 			}
 			close(fd1);
@@ -79,11 +81,13 @@ void	set_fd(t_cmd *pipes)
 			if (fd1 == -1)
 			{
 				perror(current->file);
+				free_cmd(pipes);
 				exit(1);
 			}
 			if (dup2(fd1, STDOUT_FILENO) == -1)
 			{
 				close(fd1);
+				free_cmd(pipes);
 				exit(EXIT_FAILURE);
 			}
 			close(fd1);
@@ -92,12 +96,13 @@ void	set_fd(t_cmd *pipes)
 	}
 }
 
-void	child1(char **av, t_cmd *pipes, char **env)
+void	child1(t_cmd *pipes, char **env)
 {
 	set_fd(pipes);
-	if (av[0])
+	if (pipes->args[0])
 	{
-		commande(av, env);
+		//free_cmd(pipes);
+		commande(env, pipes);
 	}
 	else
 	{
@@ -148,7 +153,7 @@ int	pipex(t_cmd *pipes, char **env)
 						if (fd == -1)
 						{
 							perror(r->file);
-							free_cmd(pipes);
+							free_cmd(current);
 							exit(1);
 						}
 						dup2(fd, STDIN_FILENO);
@@ -161,7 +166,7 @@ int	pipex(t_cmd *pipes, char **env)
 						if (fd == -1)
 						{
 							perror(r->file);
-							free_cmd(pipes);
+							free_cmd(current);
 							exit(1);
 						}
 						dup2(fd, STDOUT_FILENO);
@@ -182,7 +187,8 @@ int	pipex(t_cmd *pipes, char **env)
 					close(pipefd[0]);
 					close(pipefd[1]);
 				}
-				commande(current->args, env);
+				//free_cmd(pipes);
+				commande(env, current);
 				exit(1);
 			}
 			if (prev_pipe != -1)
@@ -200,7 +206,7 @@ int	pipex(t_cmd *pipes, char **env)
 	{
 		pid = fork();
 		if (pid == 0)
-			child1(current->args, current, env);
+			child1(pipes, env);
 
 		if (pid == -1)
 			return (-1);
