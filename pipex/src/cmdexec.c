@@ -13,7 +13,7 @@
 #include "../inc/pipex.h"
 #include "../../minishell.h"
 
-int	execslash(char *cmd, t_cmd *pipes, char *path, char **env)
+int	execslash(char *cmd, t_cmd *current, char *path, char **env)
 {
 	if ((ft_strnstr(cmd, "./", 2)) || !path || !env || (cmd[0] == '/') || (!cmd
 			|| (cmd && ft_strlen(cmd) <= 0)))
@@ -21,19 +21,17 @@ int	execslash(char *cmd, t_cmd *pipes, char *path, char **env)
 		if (check_exist(cmd) == 1)
 		{
 			if (!env)
-				execve(cmd, pipes->args, NULL);
+				execve(cmd, current->args, NULL);
 			else
-				execve(cmd, pipes->args, env);
-			free(path);
+				execve(cmd, current->args, env);
 			return (1);
 		}
-		free(path);
 		return (-1);
 	}
 	return (0);
 }
 
-void	execlast(char *slash, char **split_path, char **env, t_cmd *pipes)
+void	execlast(char *slash, char **split_path, char **env, t_cmd *pipes, t_cmd *current)
 {
 	char	*path;
 
@@ -46,33 +44,36 @@ void	execlast(char *slash, char **split_path, char **env, t_cmd *pipes)
 			free_cmd(pipes);
 			exit(126);
 		}
-		execve(path, pipes->args, env);
+		execve(path, current->args, env);
 		freeall(slash, path, split_path);
 		free_cmd(pipes);
 		exit(126);
 	}
-	put_error(NULL, 1, pipes->args);
+	put_error(NULL, 1, current->args);
 	freeall(slash, path, split_path);
-	free_cmd(pipes); // ici il faut pas free toute la structure mais ce qui est dans la structure est deja free, ou ? jsp
+	free_cmd(pipes);
 	exit(127);
 }
 
-void	commande(char **env, t_cmd *pipes)
+void	commande(char **env, t_cmd *pipes, t_cmd *current)
 {
 	char	*path;
 	char	*slash;
 	char	**split_path;
 
 	path = getpath(env);
-	if (execslash(pipes->args[0], pipes, path, env) != 0)
-		return ;
-	slash = ft_strjoin("/", pipes->args[0]);
+	if (execslash(current->args[0], current, path, env) != 0)
+	{
+		free_cmd(pipes);
+		exit(127);
+	}
+	slash = ft_strjoin("/", current->args[0]);
 	split_path = ft_split(path, ':');
-	if (!split_path || !slash || !pipes->args)
+	if (!split_path || !slash || !current->args)
 	{
 		freeall(slash, path, split_path);
 		free_cmd(pipes);
 		exit(-1);
 	}
-	execlast(slash, split_path, env, pipes);
+	execlast(slash, split_path, env, pipes, current);
 }

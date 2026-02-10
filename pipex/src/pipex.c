@@ -101,8 +101,7 @@ void	child1(t_cmd *pipes, char **env)
 	set_fd(pipes);
 	if (pipes->args[0])
 	{
-		//free_cmd(pipes);
-		commande(env, pipes);
+		commande(env, pipes, pipes);
 	}
 	else
 	{
@@ -188,7 +187,7 @@ int	pipex(t_cmd *pipes, char **env)
 					close(pipefd[1]);
 				}
 				//free_cmd(pipes);
-				commande(env, current);
+				commande(env, pipes, current);
 				exit(1);
 			}
 			if (prev_pipe != -1)
