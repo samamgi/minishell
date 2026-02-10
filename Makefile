@@ -6,7 +6,7 @@
 #    By: ssadi-ou <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/10 00:00:00 by ssadi-ou          #+#    #+#              #
-#    Updated: 2025/02/10 00:00:00 by ssadi-ou         ###   ########.fr        #
+#    Updated: 2026/02/10 23:35:18 by ssadi-ou         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,6 +28,8 @@ FT_PRINTF = $(FT_PRINTF_DIR)/libftprintf.a
 SRCS =	minishell.c \
         expand.c \
         $(PIPEX_DIR)/pipex.c \
+	$(PIPEX_DIR)/pipex_util.c \
+	$(PIPEX_DIR)/pipex_util2.c \
         $(PIPEX_DIR)/cmdexec.c \
         $(PIPEX_DIR)/utils.c \
         $(SYNTAX_DIR)/syntax_checker.c \
