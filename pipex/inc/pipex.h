@@ -23,6 +23,15 @@
 # include <unistd.h>
 # include "../../minishell.h"
 
+typedef struct s_exec
+{
+	char	*slash;
+	char	**split_path;
+	char	**env;
+	t_cmd	*pipes;
+	t_cmd	*current;
+}			t_exec;
+
 int		check_exist(char *cmd);
 
 char	*getpath(char **env);
@@ -33,7 +42,7 @@ char	*pathfinder(char *slash, char **split_path);
 
 void	commande(char **env, t_cmd *pipes, t_cmd *current);
 
-void	execlast(char *slash, char **split_path, char **env, t_cmd *pipes, t_cmd *current);
+void	execlast(t_exec *exec);
 
 int		execslash(char *cmd, t_cmd *current, char *path, char **env);
 

@@ -40,23 +40,6 @@ void	free_redir(t_redir *redir)
 	}
 }
 
-// void free_cmd(t_cmd *cmd)
-// {
-//     t_cmd *tmp;
-//     while (cmd)
-//     {
-//         tmp = cmd;
-//         if (cmd->args)
-//             free(cmd->args);
-//         if (cmd->args)
-//             free_split(cmd->args);
-//         if (cmd->redir)
-//             free_redir(cmd->redir); // 🔥 toujours appeler, même si commande == NULL
-//         cmd = cmd->next;
-//         free(tmp);
-//     }
-// }
-
 void	free_cmd(t_cmd *pipe)
 {
 	t_cmd	*current;
@@ -87,9 +70,9 @@ void	print_cmd_util(t_cmd *pipes)
 		ft_printf("Cmd : (null)0\n");
 	else
 	{
-		ft_printf("Cmd : %s\n", pipes->args[i++]); // première commande
+		ft_printf("Cmd : %s\n", pipes->args[i++]);
 		while (pipes->args[i] != NULL)
-			ft_printf("Cmd ARGS : %s\n", pipes->args[i++]); // les arguments
+			ft_printf("Cmd ARGS : %s\n", pipes->args[i++]);
 	}
 	ft_printf("\nRedirections :\n");
 	next = (pipes->redir);
@@ -112,6 +95,18 @@ void	print_cmd_util(t_cmd *pipes)
 		}
 	}
 	ft_printf("\n");
+}
+
+void	print_cmd(t_cmd *pipes)
+{
+	t_cmd	*current;
+
+	current = pipes;
+	while (current)
+	{
+		print_cmd_util(current);
+		current = current->next;
+	}
 }
 
 // void	print_cmd_util(t_cmd *pipes)
@@ -151,15 +146,3 @@ void	print_cmd_util(t_cmd *pipes)
 // 	}
 // 	ft_printf("\n");
 // }
-
-void	print_cmd(t_cmd *pipes)
-{
-	t_cmd	*current;
-
-	current = pipes;
-	while (current)
-	{
-		print_cmd_util(current);
-		current = current->next;
-	}
-}

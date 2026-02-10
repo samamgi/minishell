@@ -132,6 +132,8 @@ void	set_pipe(char *line, int *i, t_token **lst)
 	t_token	*current;
 	char	*line;
 	t_token	*lst;
+	char	*line;
+	t_token	*lst;
 
 	tokenizer(lst, ft_substr(line, (*i), 1), T_PIPE);
 	(*i)++;
@@ -214,33 +216,29 @@ void	set_pipe(char *line, int *i, t_token **lst)
 		current = current->next;
 	}
 }*/
-int	main(int ac, char **av)
-{
-	char	*line;
-	t_token	*lst;
-
-	(void)av;
-	(void)ac;
-	while (1)
-	{
-		print_token(lst);
-
-		line = readline("minishell: ");
-		if (!line)
-		break;
-		if (ft_strnstr(line, "exit", 4))
-		{
-			free(line);
-			return (0);
-		}
-		if (syntax_checker(line) == 1)
-		{
-			line = expand_variables(line);
-			lst = set_tokens(line);
-			free(line);
-			print_token(lst);
-			token_clear(lst);
-		}
-	}
-	return (0);
-}
+// int	main(int ac, char **av)
+// {
+// 	(void)av;
+// 	(void)ac;
+// 	while (1)
+// 	{
+// 		print_token(lst);
+// 		line = readline("minishell: ");
+// 		if (!line)
+// 			break ;
+// 		if (ft_strnstr(line, "exit", 4))
+// 		{
+// 			free(line);
+// 			return (0);
+// 		}
+// 		if (syntax_checker(line) == 1)
+// 		{
+// 			line = expand_variables(line);
+// 			lst = set_tokens(line);
+// 			free(line);
+// 			print_token(lst);
+// 			token_clear(lst);
+// 		}
+// 	}
+// 	return (0);
+// }

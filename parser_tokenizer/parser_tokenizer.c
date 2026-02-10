@@ -64,7 +64,6 @@ t_cmd	*parse_all(t_token *lst)
 	pipes = NULL;
 	tmp = NULL;
 	parse_all_util(&pipes, &tmp, &start, &current);
-	//print_cmd(pipes);
 	token_clear(lst);
 	return (pipes);
 }

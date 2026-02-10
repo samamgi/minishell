@@ -36,7 +36,7 @@ void	tokenizer(t_token **lst, char *token, t_token_type type)
 
 char	*word_else(char *line, int *i, int *start)
 {
-	int end;
+	int	end;
 
 	while (line[*i] && !operators(line[*i]) && (!((line[*i] >= 9
 					&& line[*i] <= 13) || line[*i] == 32)))

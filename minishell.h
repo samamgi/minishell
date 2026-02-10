@@ -24,7 +24,6 @@
 # include <sys/types.h>
 # include <sys/wait.h>
 
-
 int					space(char c);
 
 void				msg_syntax_error(char c);
@@ -138,12 +137,12 @@ void				parse_all_util(t_cmd **pipes, t_token **tmp,
 
 t_cmd				*parse_all(t_token *lst);
 
-int     pipex(t_cmd *pipes, char **env);
+int					pipex(t_cmd *pipes, char **env);
 
-void    child1(t_cmd *pipes, char **env);
+void				child1(t_cmd *pipes, char **env);
 
-void    set_fd(t_cmd *pipes);
+void				set_fd(t_cmd *pipes);
 
-void	ft_free(void *ptr);
+void				ft_free(void *ptr);
 
 #endif
