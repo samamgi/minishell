@@ -42,8 +42,6 @@ int					operators(char c);
 
 int					words(char c);
 
-char				*expand_variables(char *line);
-
 void				set_doublecotes(char *line);
 
 typedef enum e_token_type
@@ -78,6 +76,23 @@ typedef struct s_cmd
 	t_redir			*redir;
 	struct s_cmd	*next;
 }					t_cmd;
+
+typedef struct s_env
+{
+	char			*key;
+	char			*value;
+	struct s_env	*next;
+}					t_env;
+
+t_env				*set_env_list(char **env);
+
+char				*get_env_value(t_env *env_list, char *key);
+
+char				**env_list_to_array(t_env *env_list);
+
+void				free_env(t_env *env_list);
+
+char				*expand_variables(char *line, t_env *env_list);
 
 void				set_rdappend(char *line, int *i, t_token **lst);
 
@@ -147,5 +162,11 @@ void				set_fd(t_cmd *pipes);
 void				ft_free(void *ptr);
 
 void				prepare_heredocs(t_cmd *pipes);
+
+char	*strjoin_and_free(char *s1, char const *s2);
+
+int	execute_builtin(t_cmd *pipes, t_env **env_list);
+
+int	is_builtin(t_cmd *pipes);
 
 #endif

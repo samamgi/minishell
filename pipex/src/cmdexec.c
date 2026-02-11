@@ -57,25 +57,35 @@ void	execlast(t_exec *exec)
 
 void	commande(char **env, t_cmd *pipes, t_cmd *current)
 {
-	char	*path;
-	t_exec	exec;
+    char	*path;
+    t_exec	exec;
+    t_env	*env_list;
 
-	path = getpath(env);
-	if (execslash(current->args[0], current, path, env) != 0)
-	{
-		free_cmd(pipes);
-		exit(127);
-	}
-	exec.slash = ft_strjoin("/", current->args[0]);
-	exec.split_path = ft_split(path, ':');
-	if (!exec.split_path || !exec.slash || !current->args)
-	{
-		freeall(exec.slash, path, exec.split_path);
-		free_cmd(pipes);
-		exit(-1);
-	}
-	exec.env = env;
-	exec.pipes = pipes;
-	exec.current = current;
-	execlast(&exec);
+    // Vérifier si c'est un builtin
+    if (is_builtin(current))
+    {
+        env_list = set_env_list(env);
+        execute_builtin(current, &env_list);
+        free_env(env_list);
+        free_cmd(pipes);
+        exit(0);
+    }
+    path = getpath(env);
+    if (execslash(current->args[0], current, path, env) != 0)
+    {
+        free_cmd(pipes);
+        exit(127);
+    }
+    exec.slash = ft_strjoin("/", current->args[0]);
+    exec.split_path = ft_split(path, ':');
+    if (!exec.split_path || !exec.slash || !current->args)
+    {
+        freeall(exec.slash, path, exec.split_path);
+        free_cmd(pipes);
+        exit(-1);
+    }
+    exec.env = env;
+    exec.pipes = pipes;
+    exec.current = current;
+    execlast(&exec);
 }

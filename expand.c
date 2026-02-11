@@ -60,7 +60,7 @@ void	set_doublecotes(char *line)
 	}
 }
 
-void	expand_util(char *line, int *i, char **result)
+void	expand_util(char *line, int *i, char **result, t_env *env_list)
 {
 	int		start;
 	char	*varname;
@@ -71,13 +71,16 @@ void	expand_util(char *line, int *i, char **result)
 	while (line[*i] && (ft_isalnum(line[*i]) || line[*i] == '_'))
 		(*i)++;
 	varname = ft_substr(line, start, (*i) - start);
-	value = getenv(varname);
+	if (env_list)
+		value = get_env_value(env_list, varname);
+	else
+		value = getenv(varname);
 	if (value)
 		*result = strjoin_and_free(*result, value);
 	free(varname);
 }
 
-char	*expand_variables(char *line)
+char	*expand_variables(char *line, t_env *env_list)
 {
 	int		i;
 	char	tmp[2];
@@ -93,7 +96,7 @@ char	*expand_variables(char *line)
 	{
 		if (line[i] == '$' && line[i + 1] && (ft_isalnum(line[i + 1]) || line[i
 					+ 1] == '_'))
-			expand_util(line, &i, &result);
+			expand_util(line, &i, &result, env_list);
 		else
 		{
 			tmp[0] = line[i];
