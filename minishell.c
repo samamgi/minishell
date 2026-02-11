@@ -38,7 +38,6 @@ int	main(int ac, char **av, char **env)
 		}
 		if (syntax_checker(line) == 1)
 		{
-			//free_cmd(pipes);
 			line = expand_variables(line);
 			lst = set_tokens(line);
 			free(line);
@@ -47,6 +46,7 @@ int	main(int ac, char **av, char **env)
 			print_token(lst);
 			printf("test \n\n\n\n");
 			pipes = parse_all(lst);
+			prepare_heredocs(pipes);
 			printf("pipes addr %p\n", pipes);
 			if (!pipex(pipes, env))
 			{
@@ -55,7 +55,6 @@ int	main(int ac, char **av, char **env)
 				continue;
 			}
 			printf("pipes addr apres %p\n", pipes);
-			//line = NULL;
 		}
 	}
 	return (0);

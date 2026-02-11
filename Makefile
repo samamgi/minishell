@@ -27,6 +27,7 @@ FT_PRINTF = $(FT_PRINTF_DIR)/libftprintf.a
 # Source files
 SRCS =	minishell.c \
         expand.c \
+        heredoc.c \
         $(PIPEX_DIR)/pipex.c \
 	$(PIPEX_DIR)/pipex_util.c \
 	$(PIPEX_DIR)/pipex_util2.c \

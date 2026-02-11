@@ -33,9 +33,7 @@ void	solochild(t_cmd *pipes, char **env)
 {
 	set_fd(pipes);
 	if (pipes->args[0])
-	{
 		commande(env, pipes, pipes);
-	}
 	else
 	{
 		free_cmd(pipes);
@@ -43,28 +41,38 @@ void	solochild(t_cmd *pipes, char **env)
 	}
 }
 
+static int	handle_redir_type(t_redir *r, int is_input)
+{
+	int	handled;
+
+	handled = 0;
+	while (r)
+	{
+		if (is_input && (r->type == T_REDIR_IN || r->type == T_HEREDOC))
+		{
+			if (!handle_redir(r))
+				exit(1);
+			handled = 1;
+		}
+		else if (!is_input && (r->type == T_REDIR_OUT
+				|| r->type == T_REDIR_APPEND))
+		{
+			if (!handle_redir(r))
+				exit(1);
+			handled = 1;
+		}
+		r = r->next;
+	}
+	return (handled);
+}
+
 void	setup_child_fds(t_cmd *current, int prev_pipe, int *pipefd)
 {
-	t_redir	*r;
 	int		in_handled;
 	int		out_handled;
 
-	r = current->redir;
-	in_handled = 0;
-	out_handled = 0;
-	while (r)
-	{
-		if (r->type == T_REDIR_IN || r->type == T_HEREDOC)
-			in_handled = handle_redir(r);
-		else if (r->type == T_REDIR_OUT || r->type == T_REDIR_APPEND)
-			out_handled = handle_redir(r);
-		if (!in_handled && r->type == T_REDIR_IN)
-			exit(1);
-		if (!out_handled && (r->type == T_REDIR_OUT
-				|| r->type == T_REDIR_APPEND))
-			exit(1);
-		r = r->next;
-	}
+	in_handled = handle_redir_type(current->redir, 1);
+	out_handled = handle_redir_type(current->redir, 0);
 	if (!in_handled && prev_pipe != -1)
 		dup2(prev_pipe, STDIN_FILENO);
 	if (!out_handled && current->next)

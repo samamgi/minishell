@@ -35,6 +35,8 @@ void	free_redir(t_redir *redir)
 	{
 		tmp = current;
 		current = current->next;
+		if (tmp->heredoc_fd != -1)
+			close(tmp->heredoc_fd);
 		ft_free(tmp->file);
 		ft_free(tmp);
 	}

@@ -68,6 +68,7 @@ typedef struct s_redir
 {
 	t_token_type	type;
 	char			*file;
+	int				heredoc_fd;
 	struct s_redir	*next;
 }					t_redir;
 
@@ -144,5 +145,7 @@ void				child1(t_cmd *pipes, char **env);
 void				set_fd(t_cmd *pipes);
 
 void				ft_free(void *ptr);
+
+void				prepare_heredocs(t_cmd *pipes);
 
 #endif

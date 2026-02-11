@@ -21,6 +21,7 @@ t_redir	*set_redir(t_token_type token, char *value)
 		return (NULL);
 	new->type = token;
 	new->file = ft_strdup(value);
+	new->heredoc_fd = -1;
 	new->next = NULL;
 	return (new);
 }
