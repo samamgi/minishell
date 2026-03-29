@@ -35,9 +35,6 @@ int	main(int ac, char **av)
 			line = expand_variables(line);
 			lst = set_tokens(line);
 			free(line);
-			if (!lst)
-				ft_printf("lst error\n");
-			print_token(lst);
 			pipes = parse_all(lst);
 			free_cmd(pipes);
 		}

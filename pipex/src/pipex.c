@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ssadi-ou <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: aymen <aymen@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/23 23:54:49 by ssadi-ou          #+#    #+#             */
-/*   Updated: 2025/05/18 20:39:49 by ssadi-ou         ###   ########.fr       */
+/*   Updated: 2026/03/05 22:55:01 by aymen            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ static void	fork_and_exec(t_cmd *pipes, t_cmd *cur, char **env, int *fds)
 {
 	if (fork() == 0)
 	{
+		signal_child(); ////
 		setup_child_fds(cur, fds[0], &fds[1]);
 		close_pipes(fds[0], &fds[1], cur);
 		commande(env, pipes, cur);
@@ -58,7 +59,10 @@ static int	execute_single(t_cmd *pipes, char **env)
 	if (pid == -1)
 		return (-1);
 	if (pid == 0)
+	{
+		signal_child(); ////
 		solochild(pipes, env);
+	}
 	wait(NULL);
 	return (0);
 }

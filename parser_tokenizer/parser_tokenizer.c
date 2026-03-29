@@ -37,7 +37,6 @@ void	parse_all_util(t_cmd **pipes, t_token **tmp, t_token **start,
 		if (!(*pipes))
 		{
 			*pipes = parse_tokens(*start);
-			printf("pipes addr apres malloc %p\n", pipes);
 			last = *pipes;
 		}
 		else

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmdexec.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ssadi-ou <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: aymen <aymen@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/31 05:21:04 by ssadi-ou          #+#    #+#             */
-/*   Updated: 2025/05/18 16:05:12 by ssadi-ou         ###   ########.fr       */
+/*   Updated: 2026/03/05 21:33:19 by aymen            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void	commande(char **env, t_cmd *pipes, t_cmd *current)
     t_env	*env_list;
 
     // Vérifier si c'est un builtin
-    if (is_builtin(current))
+    if (check_builtin(current))
     {
         env_list = set_env_list(env);
         execute_builtin(current, &env_list);

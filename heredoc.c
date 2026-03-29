@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ssadi-ou <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: aymen <aymen@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 00:00:00 by ssadi-ou          #+#    #+#             */
-/*   Updated: 2026/02/11 00:00:00 by ssadi-ou         ###   ########.fr       */
+/*   Updated: 2026/03/05 21:20:01 by aymen            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,15 @@ static int	read_heredoc_content(char *delimiter, int write_fd)
 	char	*line;
 	int		delim_len;
 
+	signal_heredoc(); ///
+
 	delim_len = ft_strlen(delimiter);
 	while (1)
 	{
 		line = readline("> ");
 		if (!line)
 		{
-			ft_printf("warning: here-document delimited by end-of-file\n");
+			ft_printf("minishell: warning: here-document delimited by end-of-file (wanted `%s')\n", delimiter);
 			break ;
 		}
 		if (ft_strncmp(line, delimiter, delim_len) == 0
@@ -54,6 +56,7 @@ static int	setup_heredoc(t_redir *redir)
 		close(pipefd[1]);
 		return (0);
 	}
+	setup_signal();
 	close(pipefd[1]);
 	redir->heredoc_fd = pipefd[0];
 	return (1);
@@ -71,10 +74,7 @@ static void	process_cmd_heredocs(t_cmd *cmd)
 		if (redir->type == T_HEREDOC)
 		{
 			if (!setup_heredoc(redir))
-			{
-				ft_printf("Error: heredoc setup failed\n");
 				return ;
-			}
 		}
 		redir = redir->next;
 	}
