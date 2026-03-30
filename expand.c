@@ -12,6 +12,8 @@
 
 #include "minishell.h"
 
+void	expand_util(char *line, int *i, char **result, t_env *env_list);
+
 char	*strjoin_and_free(char *s1, char const *s2)
 {
 	char	*str;
@@ -40,82 +42,60 @@ char	*strjoin_and_free(char *s1, char const *s2)
 	return (free(s1), str);
 }
 
-void	set_doublecotes(char *line)
+static void	expand_status_value(char **result)
+{
+	char	*status;
+
+	status = ft_itoa(g_shell.signumber);
+	if (status)
+	{
+		*result = strjoin_and_free(*result, status);
+		free(status);
+	}
+}
+
+static void	append_plain_char(char **result, char c)
+{
+	char	tmp[2];
+
+	tmp[0] = c;
+	tmp[1] = '\0';
+	*result = strjoin_and_free(*result, tmp);
+}
+
+static void	expand_loop(char *line, t_env *env_list, char **result)
 {
 	int	i;
 
 	i = 0;
 	while (line[i])
 	{
-		if (line[i] && line[i] == '"')
+		if (line[i] == '$' && line[i + 1] == '?')
 		{
-			i++;
-			while (line[i] != '\0' && line[i] != '"')
-			{
-				line[i] *= -1;
-				i++;
-			}
+			expand_status_value(result);
+			i += 2;
 		}
-		i++;
+		else if (line[i] == '$' && line[i + 1]
+			&& (ft_isalnum(line[i + 1]) || line[i + 1] == '_'))
+			expand_util(line, &i, result, env_list);
+		else
+		{
+			append_plain_char(result, line[i]);
+			i++;
+		}
 	}
-}
-
-void	expand_util(char *line, int *i, char **result, t_env *env_list)
-{
-	int		start;
-	char	*varname;
-	char	*value;
-
-	(*i)++;
-	start = (*i);
-	while (line[*i] && (ft_isalnum(line[*i]) || line[*i] == '_'))
-		(*i)++;
-	varname = ft_substr(line, start, (*i) - start);
-	if (env_list)
-		value = get_env_value(env_list, varname);
-	else
-		value = getenv(varname);
-	if (value)
-		*result = strjoin_and_free(*result, value);
-	free(varname);
 }
 
 char	*expand_variables(char *line, t_env *env_list)
 {
-	int		i;
-	char	tmp[2];
 	char	*result;
-	char	*status;
 
 	if (ft_strlen(line) == 0)
 		return (NULL);
 	set_doublecotes(line);
 	result = malloc(1);
 	result[0] = '\0';
-	i = 0;
-	while (line[i])
-	{
-		if (line[i] == '$' && line[i + 1] == '?')
-		{
-			status = ft_itoa(g_signumber);
-			if (status)
-			{
-				result = strjoin_and_free(result, status);
-				free(status);
-			}
-			i += 2;
-		}
-		else if (line[i] == '$' && line[i + 1] && (ft_isalnum(line[i + 1])
-				|| line[i + 1] == '_'))
-			expand_util(line, &i, &result, env_list);
-		else
-		{
-			tmp[0] = line[i];
-			tmp[1] = '\0';
-			result = strjoin_and_free(result, tmp);
-			i++;
-		}
-	}
+	expand_loop(line, env_list, &result);
 	set_doublecotes(result);
 	return (result);
 }

@@ -12,41 +12,42 @@
 
 #include "minishell.h"
 
-int check_n(char *str)
+int	check_n(char *str)
 {
-    int i;
+	int	i;
 
-    i = 1;
-    while (str[i])
-    {
-        if (str[i] == 'n')
-            i++;
-        else
-            return (0);
-    }
-    return (1);
+	i = 1;
+	while (str[i])
+	{
+		if (str[i] == 'n')
+			i++;
+		else
+			return (0);
+	}
+	return (1);
 }
 
-int ft_echo(t_cmd *pipes)
+int	ft_echo(t_cmd *pipes)
 {
-    int flag_n;
-    int i;
+	int	flag_n;
+	int	i;
 
-    flag_n = 0;
-    i = 1;
-    while (pipes->args[i] && pipes->args[i][0] == '-' && pipes->args[i][1] == 'n' && check_n(pipes->args[i]))
-    {
-        flag_n = 1;
-        i++;
-    }
-    while (pipes->args[i])
-    {
-        ft_printf("%s", pipes->args[i]);
-        if (pipes->args[i + 1])
-            ft_printf(" ");
-        i++;
-    }
-    if (flag_n == 0)
-        ft_printf("\n");
-    return (0);
+	flag_n = 0;
+	i = 1;
+	while (pipes->args[i] && pipes->args[i][0] == '-'
+		&& pipes->args[i][1] == 'n' && check_n(pipes->args[i]))
+	{
+		flag_n = 1;
+		i++;
+	}
+	while (pipes->args[i])
+	{
+		ft_printf("%s", pipes->args[i]);
+		if (pipes->args[i + 1])
+			ft_printf(" ");
+		i++;
+	}
+	if (flag_n == 0)
+		ft_printf("\n");
+	return (0);
 }

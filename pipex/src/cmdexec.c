@@ -19,8 +19,8 @@ static void	child_cleanup_and_exit(int status, t_cmd *pipes, char **env)
 		free_split(env);
 	if (pipes)
 		free_cmd(pipes);
-	if (g_env_global)
-		free_env((t_env *)g_env_global);
+	if (g_shell.env_global)
+		free_env((t_env *)g_shell.env_global);
 	clear_history();
 	rl_clear_history();
 	exit(status);
@@ -65,35 +65,41 @@ void	execlast(t_exec *exec)
 	child_cleanup_and_exit(127, exec->pipes, exec->env);
 }
 
+static int	setup_exec_data(t_exec *exec, t_cmd *current,
+	t_cmd *pipes, char **env)
+{
+	char	*path;
+
+	path = getpath(env);
+	if (execslash(current->args[0], current, path, env) != 0)
+		return (1);
+	exec->slash = ft_strjoin("/", current->args[0]);
+	exec->split_path = ft_split(path, ':');
+	if (!exec->split_path || !exec->slash || !current->args)
+	{
+		freeall(exec->slash, path, exec->split_path);
+		return (1);
+	}
+	exec->env = env;
+	exec->pipes = pipes;
+	exec->current = current;
+	return (0);
+}
+
 void	commande(char **env, t_cmd *pipes, t_cmd *current)
 {
-    char	*path;
-    t_exec	exec;
-    t_env	*env_list;
+	t_exec	exec;
+	t_env	*env_list;
 	int		status;
 
-    // Vérifier si c'est un builtin
-    if (check_builtin(current))
-    {
-        env_list = set_env_list(env);
+	if (check_builtin(current))
+	{
+		env_list = set_env_list(env);
 		status = execute_builtin(current, &env_list);
-        free_env(env_list);
+		free_env(env_list);
 		child_cleanup_and_exit(status, pipes, env);
-    }
-    path = getpath(env);
-    if (execslash(current->args[0], current, path, env) != 0)
-    {
+	}
+	if (setup_exec_data(&exec, current, pipes, env))
 		child_cleanup_and_exit(127, pipes, env);
-    }
-    exec.slash = ft_strjoin("/", current->args[0]);
-    exec.split_path = ft_split(path, ':');
-    if (!exec.split_path || !exec.slash || !current->args)
-    {
-        freeall(exec.slash, path, exec.split_path);
-		child_cleanup_and_exit(1, pipes, env);
-    }
-    exec.env = env;
-    exec.pipes = pipes;
-    exec.current = current;
-    execlast(&exec);
+	execlast(&exec);
 }

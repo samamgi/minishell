@@ -12,50 +12,59 @@
 
 #include "minishell.h"
 
-void set_env_value(t_env **env_list, char *key, char *value)
+static int	update_env_if_found(t_env *current, char *key, char *value)
 {
-    t_env *current;
-
-    if (!env_list || !key)
-        return;
-
-    current = *env_list;
-    while (current)
-    {
-        if (ft_strncmp(current->key, key, ft_strlen(key) + 1) == 0)
-        {
-            free(current->value);
-            if (value)
-                current->value = ft_strdup(value);
-            else
-                current->value = ft_strdup("");  
-            return;
-        }
-        current = current->next;
-    }
-
-    t_env *new_node = malloc(sizeof(t_env));
-    if (!new_node)
-        return;
-    new_node->key = ft_strdup(key);
-    if (value)
-        new_node->value = ft_strdup(value);
-    else
-        new_node->value = ft_strdup(""); 
-    new_node->next = *env_list;
-    *env_list = new_node;
+	while (current)
+	{
+		if (ft_strncmp(current->key, key, ft_strlen(key) + 1) == 0)
+		{
+			free(current->value);
+			if (value)
+				current->value = ft_strdup(value);
+			else
+				current->value = ft_strdup("");
+			return (1);
+		}
+		current = current->next;
+	}
+	return (0);
 }
 
-int ft_env(t_env *env)
+static void	append_new_env(t_env **env_list, char *key, char *value)
 {
-    t_env *current;
+	t_env	*new_node;
 
-    current = env;
-    while (current)
-    {
-        if (current->value)
-            printf("%s=%s\n", current->key, current->value);
-        current = current->next;
-    }
-    return (0);
+	new_node = malloc(sizeof(t_env));
+	if (!new_node)
+		return ;
+	new_node->key = ft_strdup(key);
+	if (value)
+		new_node->value = ft_strdup(value);
+	else
+		new_node->value = ft_strdup("");
+	new_node->next = *env_list;
+	*env_list = new_node;
+}
+
+void	set_env_value(t_env **env_list, char *key, char *value)
+{
+	if (!env_list || !key)
+		return ;
+	if (update_env_if_found(*env_list, key, value))
+		return ;
+	append_new_env(env_list, key, value);
+}
+
+int	ft_env(t_env *env)
+{
+	t_env	*current;
+
+	current = env;
+	while (current)
+	{
+		if (current->value)
+			printf("%s=%s\n", current->key, current->value);
+		current = current->next;
+	}
+	return (0);
 }

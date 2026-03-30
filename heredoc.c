@@ -12,82 +12,96 @@
 
 #include "minishell.h"
 
-static int	read_heredoc_content(char *delimiter, int write_fd)
+int	run_heredoc_child(int write_fd, t_redir *redir, t_cmd *cmd_root);
+
+static int	wait_heredoc_child(pid_t pid, int read_fd)
 {
-	char	*line;
-	int		delim_len;
+	int	status;
 
-	signal_heredoc(); ///
-
-	delim_len = ft_strlen(delimiter);
-	while (1)
+	if (waitpid(pid, &status, 0) == -1)
 	{
-		line = readline("> ");
-		if (!line)
-		{
-			ft_printf("minishell: warning: here-document delimited by end-of-file (wanted `%s')\n", delimiter);
-			break ;
-		}
-		if (ft_strncmp(line, delimiter, delim_len) == 0
-			&& line[delim_len] == '\0')
-		{
-			free(line);
-			break ;
-		}
-		write(write_fd, line, ft_strlen(line));
-		write(write_fd, "\n", 1);
-		free(line);
+		close(read_fd);
+		return (0);
+	}
+	setup_signal();
+	if ((WIFEXITED(status) && WEXITSTATUS(status) == 130)
+		|| (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT))
+	{
+		g_shell.signumber = 130;
+		close(read_fd);
+		return (0);
+	}
+	if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
+	{
+		close(read_fd);
+		return (0);
 	}
 	return (1);
 }
 
-static int	setup_heredoc(t_redir *redir)
+static int	start_heredoc_process(int pipefd[2], pid_t *pid)
 {
-	int	pipefd[2];
-
 	if (pipe(pipefd) == -1)
+		return (perror("pipe"), 0);
+	*pid = fork();
+	if (*pid == -1)
 	{
-		perror("pipe");
-		return (0);
-	}
-	if (!read_heredoc_content(redir->file, pipefd[1]))
-	{
+		perror("fork");
 		close(pipefd[0]);
 		close(pipefd[1]);
 		return (0);
 	}
-	setup_signal();
+	return (1);
+}
+
+static int	setup_heredoc(t_redir *redir, t_cmd *cmd_root)
+{
+	int		pipefd[2];
+	pid_t	pid;
+
+	if (!start_heredoc_process(pipefd, &pid))
+		return (0);
+	if (pid == 0)
+	{
+		close(pipefd[0]);
+		run_heredoc_child(pipefd[1], redir, cmd_root);
+	}
 	close(pipefd[1]);
+	if (!wait_heredoc_child(pid, pipefd[0]))
+		return (0);
 	redir->heredoc_fd = pipefd[0];
 	return (1);
 }
 
-static void	process_cmd_heredocs(t_cmd *cmd)
+static int	process_cmd_heredocs(t_cmd *cmd, t_cmd *cmd_root)
 {
 	t_redir	*redir;
 
 	if (!cmd)
-		return ;
+		return (1);
 	redir = cmd->redir;
 	while (redir)
 	{
 		if (redir->type == T_HEREDOC)
 		{
-			if (!setup_heredoc(redir))
-				return ;
+			if (!setup_heredoc(redir, cmd_root))
+				return (0);
 		}
 		redir = redir->next;
 	}
+	return (1);
 }
 
-void	prepare_heredocs(t_cmd *pipes)
+int	prepare_heredocs(t_cmd *pipes)
 {
 	t_cmd	*current;
 
 	current = pipes;
 	while (current)
 	{
-		process_cmd_heredocs(current);
+		if (!process_cmd_heredocs(current, pipes))
+			return (0);
 		current = current->next;
 	}
+	return (1);
 }

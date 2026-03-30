@@ -12,36 +12,39 @@
 
 #include "minishell.h"
 
-static int	is_numeric_exit_arg(char *str, long long *number)
+static void	exit_cleanup(int code, t_cmd *pipes, t_env **env_list)
 {
-	int					sign;
+	clear_history();
+	rl_clear_history();
+	free_env(*env_list);
+	free_cmd(pipes);
+	exit(code);
+}
+
+static void	exit_numeric_error(t_cmd *pipes, t_env **env_list)
+{
+	ft_putendl_fd("exit", 2);
+	ft_putstr_fd("minishell: exit: ", 2);
+	ft_putstr_fd(pipes->args[1], 2);
+	ft_putendl_fd(": numeric argument required", 2);
+	exit_cleanup(2, pipes, env_list);
+}
+
+static int	accumulate_exit_value(char *str, int sign, long long *number)
+{
 	unsigned long long	value;
 	unsigned long long	limit;
 
-	if (!str || !*str)
-		return (0);
-	sign = 1;
-	if (*str == '+' || *str == '-')
-	{
-		if (*str == '-')
-			sign = -1;
-		str++;
-	}
-	if (!*str)
-		return (0);
 	value = 0;
-	limit = 9223372036854775807ULL;
-	if (sign == -1)
-		limit = 9223372036854775808ULL;
-	while (*str)
+	limit = 9223372036854775807ULL + (sign == -1);
+	while (*str && ft_isdigit(*str))
 	{
-		if (!ft_isdigit(*str))
-			return (0);
 		if (value > (limit - (*str - '0')) / 10)
 			return (0);
-		value = (value * 10) + (*str - '0');
-		str++;
+		value = (value * 10) + (*str++ - '0');
 	}
+	if (*str)
+		return (0);
 	if (sign == -1 && value == 9223372036854775808ULL)
 		*number = (-9223372036854775807LL - 1);
 	else
@@ -49,41 +52,38 @@ static int	is_numeric_exit_arg(char *str, long long *number)
 	return (1);
 }
 
-int ft_exit(t_cmd *pipes, t_env **env_list)
+static int	is_numeric_exit_arg(char *str, long long *number)
 {
-    long long	exit_number;
+	int	sign;
 
-    if (!pipes->args[1])
-    {
-        ft_putendl_fd("exit", 2);
-		clear_history();
-		rl_clear_history();
-        free_env(*env_list);
-        free_cmd(pipes);
-        exit(0);
-    }
-    if (!is_numeric_exit_arg(pipes->args[1], &exit_number))
-    {
-        ft_putendl_fd("exit", 2);
-        ft_putstr_fd("minishell: exit: ", 2);
-        ft_putstr_fd(pipes->args[1], 2);
-        ft_putendl_fd(": numeric argument required", 2);
-		clear_history();
-		rl_clear_history();
-        free_env(*env_list);
-        free_cmd(pipes);
-        exit(2);
-    }
-    if (pipes->args[2])
-    {
-        ft_putendl_fd("minishell: exit: too many arguments", 2);
-        g_signumber = 1;
-        return (1);
-    }
-    ft_putendl_fd("exit", 2);
-	clear_history();
-	rl_clear_history();
-    free_env(*env_list);
-    free_cmd(pipes);
-    exit((unsigned char)exit_number);
+	if (!str || !*str)
+		return (0);
+	sign = 1;
+	if (*str == '+' || *str == '-')
+	{
+		sign = 1 - (*str == '-') * 2;
+		str++;
+	}
+	if (!*str)
+		return (0);
+	return (accumulate_exit_value(str, sign, number));
+}
+
+int	ft_exit(t_cmd *pipes, t_env **env_list)
+{
+	long long	exit_number;
+
+	if (!pipes->args[1])
+		return (ft_putendl_fd("exit", 2), exit_cleanup(0, pipes, env_list), 0);
+	if (!is_numeric_exit_arg(pipes->args[1], &exit_number))
+		exit_numeric_error(pipes, env_list);
+	if (pipes->args[2])
+	{
+		ft_putendl_fd("minishell: exit: too many arguments", 2);
+		g_shell.signumber = 1;
+		return (1);
+	}
+	ft_putendl_fd("exit", 2);
+	exit_cleanup((unsigned char)exit_number, pipes, env_list);
+	return (0);
 }

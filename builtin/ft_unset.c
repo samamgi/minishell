@@ -12,35 +12,40 @@
 
 #include "minishell.h"
 
-int ft_unset(t_cmd *pipes, t_env **env_list)
+static void	unset_one_key(char *key, t_env **env_list)
 {
-    int i;
-    t_env *current;
-    t_env *prev;
+	t_env	*current;
+	t_env	*prev;
 
-    i = 1;
-    while (pipes->args[i])
-    {
-        current = *env_list;
-        prev = NULL;
-        while (current)
-        {
-            if (ft_strncmp(current->key, pipes->args[i],
-                           ft_strlen(pipes->args[i]) + 1) == 0)
-            {
-                if (prev)
-                    prev->next = current->next;
-                else
-                    *env_list = current->next;
-                free(current->key);
-                free(current->value);
-                free(current);
-                break;
-            }
-            prev = current;
-            current = current->next;
-        }
-        i++;
-    }
-    return (0);
+	current = *env_list;
+	prev = NULL;
+	while (current)
+	{
+		if (ft_strncmp(current->key, key, ft_strlen(key) + 1) == 0)
+		{
+			if (prev)
+				prev->next = current->next;
+			else
+				*env_list = current->next;
+			free(current->key);
+			free(current->value);
+			free(current);
+			return ;
+		}
+		prev = current;
+		current = current->next;
+	}
+}
+
+int	ft_unset(t_cmd *pipes, t_env **env_list)
+{
+	int	i;
+
+	i = 1;
+	while (pipes->args[i])
+	{
+		unset_one_key(pipes->args[i], env_list);
+		i++;
+	}
+	return (0);
 }

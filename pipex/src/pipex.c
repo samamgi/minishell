@@ -13,6 +13,8 @@
 #include "../../minishell.h"
 #include "../inc/pipex.h"
 
+static void	wait_for_children(pid_t last_pid);
+
 static pid_t	fork_and_exec(t_cmd *pipes, t_cmd *cur, char **env, int *fds)
 {
 	pid_t	pid;
@@ -20,7 +22,7 @@ static pid_t	fork_and_exec(t_cmd *pipes, t_cmd *cur, char **env, int *fds)
 	pid = fork();
 	if (pid == 0)
 	{
-		signal_child(); ////
+		signal_child();
 		setup_child_fds(cur, fds[0], &fds[1]);
 		close_pipes(fds[0], &fds[1], cur);
 		commande(env, pipes, cur);
@@ -33,8 +35,6 @@ static void	execute_child(t_cmd *pipes, t_cmd *current, char **env)
 {
 	int		fds[3];
 	pid_t	last_pid;
-	pid_t	waited;
-	int		status;
 
 	fds[0] = -1;
 	last_pid = -1;
@@ -55,6 +55,14 @@ static void	execute_child(t_cmd *pipes, t_cmd *current, char **env)
 		}
 		current = current->next;
 	}
+	wait_for_children(last_pid);
+}
+
+static void	wait_for_children(pid_t last_pid)
+{
+	pid_t	waited;
+	int		status;
+
 	status = 0;
 	while (1)
 	{
@@ -64,9 +72,9 @@ static void	execute_child(t_cmd *pipes, t_cmd *current, char **env)
 		if (waited == last_pid)
 		{
 			if (WIFEXITED(status))
-				g_signumber = WEXITSTATUS(status);
+				g_shell.signumber = WEXITSTATUS(status);
 			else if (WIFSIGNALED(status))
-				g_signumber = 128 + WTERMSIG(status);
+				g_shell.signumber = 128 + WTERMSIG(status);
 		}
 	}
 }
@@ -81,15 +89,15 @@ static int	execute_single(t_cmd *pipes, char **env)
 		return (-1);
 	if (pid == 0)
 	{
-		signal_child(); ////
+		signal_child();
 		solochild(pipes, env);
 	}
 	if (waitpid(pid, &status, 0) != -1)
 	{
 		if (WIFEXITED(status))
-			g_signumber = WEXITSTATUS(status);
+			g_shell.signumber = WEXITSTATUS(status);
 		else if (WIFSIGNALED(status))
-			g_signumber = 128 + WTERMSIG(status);
+			g_shell.signumber = 128 + WTERMSIG(status);
 	}
 	return (0);
 }

@@ -68,33 +68,20 @@ void	print_cmd_util(t_cmd *pipes)
 
 	i = 0;
 	ft_printf("Pipe_struct :\n\n");
-	if (!(pipes->args) || !(pipes->args)[0])
-		ft_printf("Cmd : (null)0\n");
-	else
-	{
+	if (pipes->args && pipes->args[0])
 		ft_printf("Cmd : %s\n", pipes->args[i++]);
-		while (pipes->args[i] != NULL)
-			ft_printf("Cmd ARGS : %s\n", pipes->args[i++]);
-	}
+	else
+		ft_printf("Cmd : (null)0\n");
+	while (pipes->args && pipes->args[i] != NULL)
+		ft_printf("Cmd ARGS : %s\n", pipes->args[i++]);
 	ft_printf("\nRedirections :\n");
-	next = (pipes->redir);
+	next = pipes->redir;
 	if (!next)
 		printf("Redirections : (null)\n");
-	else
+	while (next)
 	{
-		while (next)
-		{
-			if (next->type == T_REDIR_IN)
-				ft_printf("Redirection type : REDIR_IN ");
-			else if (next->type == T_REDIR_OUT)
-				ft_printf("Redirection type : REDIR_OUT ");
-			else if (next->type == T_REDIR_APPEND)
-				ft_printf("Redirection type : REDIR_APPEND ");
-			else if (next->type == T_HEREDOC)
-				ft_printf("Redirection type : HEREDOC ");
-			ft_printf("Redirection file : %s\n", next->file);
-			next = next->next;
-		}
+		ft_printf("Redirection type:%d file:%s\n", next->type, next->file);
+		next = next->next;
 	}
 	ft_printf("\n");
 }
@@ -110,41 +97,3 @@ void	print_cmd(t_cmd *pipes)
 		current = current->next;
 	}
 }
-
-// void	print_cmd_util(t_cmd *pipes)
-// {
-// 	int		i;
-// 	t_redir	*next;
-
-// 	i = 0;
-// 	ft_printf("Pipe_struct :\n\n");
-// 	if (!(pipes->args))
-// 		ft_printf("Cmd : (null)\n");
-// 	else
-// 	{
-// 		ft_printf("Cmd : %s0\n", (pipes->args[i++]));
-// 		while ((pipes->args)[i] != NULL)
-// 			ft_printf("Cmd ARGS : %s\n", (pipes->args[i++]));
-// 	}
-// 	ft_printf("\nRedirections :\n");
-// 	next = (pipes->redir);
-// 	if (!next)
-// 		printf("Redirections : (null)\n");
-// 	else
-// 	{
-// 		while (next)
-// 		{
-// 			if (next->type == T_REDIR_IN)
-// 				ft_printf("Redirection type : REDIR_IN ");
-// 			if (next->type == T_REDIR_OUT)
-// 				ft_printf("Redirection type : REDIR_OUT ");
-// 			if (next->type == T_REDIR_APPEND)
-// 				ft_printf("Redirection type : REDIR_APPEND ");
-// 			if (next->type == T_HEREDOC)
-// 				ft_printf("Redirection type : HEREDOC ");
-// 			ft_printf("Redirection file : %s0\n", next->file);
-// 			next = next->next;
-// 		}
-// 	}
-// 	ft_printf("\n");
-// }

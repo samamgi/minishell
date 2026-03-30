@@ -1,41 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signal.c                                           :+:      :+:    :+:   */
+/*   signal_heredoc.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aymen <aymen@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/03/04 17:42:07 by aymen             #+#    #+#             */
-/*   Updated: 2026/03/05 22:55:01 by aymen            ###   ########.fr       */
+/*   Created: 2026/03/30 03:10:00 by aymen             #+#    #+#             */
+/*   Updated: 2026/03/30 03:10:00 by aymen            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	sigint_handle(int sig)
+void	sigint_heredoc(int sig)
 {
 	(void)sig;
+	g_shell.heredoc_interrupted = 1;
 	g_shell.signumber = 130;
 	write(1, "\n", 1);
-	rl_on_new_line();
-	rl_replace_line("", 0);
-	if (g_shell.in_readline)
-		rl_redisplay();
+	close(STDIN_FILENO);
 }
 
-void	setup_signal(void)
+void	signal_heredoc(void)
 {
-	signal(SIGINT, sigint_handle);
+	g_shell.heredoc_interrupted = 0;
+	signal(SIGINT, sigint_heredoc);
 	signal(SIGQUIT, SIG_IGN);
 }
 
-void	set_readline_state(int state)
+int	heredoc_interrupted(void)
 {
-	g_shell.in_readline = state;
-}
-
-void	signal_child(void)
-{
-	signal(SIGINT, SIG_DFL);
-	signal(SIGQUIT, SIG_DFL);
+	return (g_shell.heredoc_interrupted != 0);
 }

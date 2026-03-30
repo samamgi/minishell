@@ -6,50 +6,27 @@
 /*   By: aymen <aymen@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/29 01:24:15 by ssadi-ou          #+#    #+#             */
-/*   Updated: 2026/03/05 22:55:01 by aymen            ###   ########.fr       */
+/*   Updated: 2026/03/30 00:00:00 by aymen            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
-#define MINISHELL_H
+# define MINISHELL_H
 
-#include "ft_printf/ft_printf.h"
-#include "libft/libft.h"
-#include <readline/history.h>
-#include <readline/readline.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <signal.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <unistd.h>
-
-extern int g_signumber;
-extern struct s_env *g_env_global;
-
-int space(char c);
-
-void msg_syntax_error(char c);
-
-int check_cote(char *line);
-
-int check_else(char *line);
-
-int check_chevron(char *line);
-
-int check_pipe(char *line);
-
-int syntax_checker(char *line);
-
-int operators(char c);
-
-int words(char c);
-
-void set_doublecotes(char *line);
+# include "ft_printf/ft_printf.h"
+# include "libft/libft.h"
+# include <errno.h>
+# include <fcntl.h>
+# include <readline/history.h>
+# include <readline/readline.h>
+# include <signal.h>
+# include <stdbool.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include <sys/types.h>
+# include <sys/wait.h>
+# include <unistd.h>
 
 typedef enum e_token_type
 {
@@ -60,180 +37,133 @@ typedef enum e_token_type
 	T_REDIR_OUT,
 	T_REDIR_APPEND,
 	T_HEREDOC
-} t_token_type;
+}t_token_type;
 
 typedef struct s_token
 {
-	char *value;
-	t_token_type type;
-	struct s_token *next;
-} t_token;
+	char			*value;
+	t_token_type	type;
+	struct s_token	*next;
+}t_token;
 
 typedef struct s_redir
 {
-	t_token_type type;
-	char *file;
-	int heredoc_fd;
-	struct s_redir *next;
-} t_redir;
+	t_token_type	type;
+	char			*file;
+	int				heredoc_fd;
+	struct s_redir	*next;
+}t_redir;
 
 typedef struct s_cmd
 {
-	char **args;
-	t_redir *redir;
-	struct s_cmd *next;
-} t_cmd;
+	char				**args;
+	t_redir				*redir;
+	struct s_cmd		*next;
+}t_cmd;
 
 typedef struct s_env
 {
-	char *key;
-	char *value;
-	struct s_env *next;
-} t_env;
-
-t_env *set_env_list(char **env);
-
-char *get_env_value(t_env *env_list, char *key);
-
-char **env_list_to_array(t_env *env_list);
-
-void free_env(t_env *env_list);
-
-char *expand_variables(char *line, t_env *env_list);
-
-void set_rdappend(char *line, int *i, t_token **lst);
-
-void set_heredoc(char *line, int *i, t_token **lst);
-
-void set_rdout(char *line, int *i, t_token **lst);
-
-void set_rdin(char *line, int *i, t_token **lst);
-
-void set_pipe(char *line, int *i, t_token **lst);
-
-void set_word(char *line, int *i, t_token **lst, int *cmd);
-
-void set_tokens_util(char *line, int *i, t_token **lst,
-					 int *cmd);
-
-void token_set_quotes(t_token *lst);
-
-void print_token(t_token *lst);
-
-void token_clear(t_token *lst);
-
-void tokenizer(t_token **lst, char *token, t_token_type type);
-
-char *word_else(char *line, int *i, int *start);
-
-char *word(char *line, int *i);
-
-t_token *set_tokens(char *line);
-
-void free_split(char **split);
-
-void free_redir(t_redir *redir);
-
-void free_cmd(t_cmd *pipe);
-
-void print_cmd_util(t_cmd *pipes);
-
-void print_cmd(t_cmd *pipes);
-
-t_redir *set_redir(t_token_type token, char *value);
-
-t_cmd *init_pipes(t_token *lst);
-
-int token_count(t_token *lst);
-
-int set_args(t_cmd *pipes, t_token *lst);
-
-void cmd_set_redir(t_cmd *pipes, t_token **current,
-				   t_redir **next);
-
-t_cmd *parse_tokens(t_token *lst);
-
-void parse_all_util2(t_token **tmp, t_token **current);
-
-void parse_all_util(t_cmd **pipes, t_token **tmp,
-					t_token **start, t_token **current);
-
-t_cmd *parse_all(t_token *lst);
-
-int pipex(t_cmd *pipes, char **env);
-
-void child1(t_cmd *pipes, char **env);
-
-void set_fd(t_cmd *pipes);
-
-void ft_free(void *ptr);
-
-void prepare_heredocs(t_cmd *pipes);
-
-char *strjoin_and_free(char *s1, char const *s2);
-
-////////////////////////////////////// signaux ////////////////////////////////////////////////////////////////
-
-void sigint_handle(int sig);
-
-void setup_signal(void);
-
-void signal_child(void);
-
-void sigint_heredoc(int sig);
-
-void signal_heredoc(void);
-
-void set_readline_state(int state);
-
-///////////////////////////////////// builtin ////////////////////////////////////////////////////////////////
-
-int execute_builtin(t_cmd *pipes, t_env **env_list);
-
-int check_builtin(t_cmd *pipes);
-
-/////////////////// cd ///////////////////
-
-int cd_home(t_env **env_list, char *oldpwd);
-
-int cd_oldpwd(t_env **env_list, char *oldpwd);
-
-int cd_path(t_env **env_list, char *path, char *oldpwd);
-
-int ft_cd(t_cmd *pipes, t_env **env_list);
-
-///////////////////////////////////////////
-
-int check_n(char *str);
-
-int ft_echo(t_cmd *pipes);
-
-///////////////////////////////////////
-
-void print_export(t_env *env);
-
-int add_update_env(t_env **env_list, char *key, char *value);
-
-int ft_export(t_cmd *pipes, t_env **env_list);
-
-////////////////////////////////////////////////////
-
-void set_env_value(t_env **env_list, char *key, char *value);
-
-char *get_env_value(t_env *env_list, char *key);
-
-int ft_env(t_env *env);
-
-/////////////////////////////////
-
-int ft_exit(t_cmd *pipes, t_env **env_list);
-
-//////////////////////////////////////
-
-int ft_pwd(void);
-
-//////////////////////////////////
-
-int ft_unset(t_cmd *pipes, t_env **env_list);
+	char				*key;
+	char				*value;
+	struct s_env		*next;
+}t_env;
+
+typedef struct s_global
+{
+	int			signumber;
+	t_env		*env_global;
+	int			in_readline;
+	int			heredoc_interrupted;
+}t_global;
+
+extern t_global	g_shell;
+
+int		space(char c);
+void	msg_syntax_error(char c);
+int		check_cote(char *line);
+int		check_else(char *line);
+int		check_chevron(char *line);
+int		check_pipe(char *line);
+int		syntax_checker(char *line);
+int		operators(char c);
+int		words(char c);
+void	set_doublecotes(char *line);
+
+t_env	*set_env_list(char **env);
+char	*get_env_value(t_env *env_list, char *key);
+char	**env_list_to_array(t_env *env_list);
+void	free_env(t_env *env_list);
+void	increment_shlvl(t_env **env_list);
+void	update_last_arg(t_env **env_list, char *cmd);
+int		apply_redir_builtin(t_cmd *pipes, t_env **env_list);
+char	*expand_variables(char *line, t_env *env_list);
+
+void	set_rdappend(char *line, int *i, t_token **lst);
+void	set_heredoc(char *line, int *i, t_token **lst);
+void	set_rdout(char *line, int *i, t_token **lst);
+void	set_rdin(char *line, int *i, t_token **lst);
+void	set_pipe(char *line, int *i, t_token **lst);
+void	set_word(char *line, int *i, t_token **lst, int *cmd);
+void	set_tokens_util(char *line, int *i, t_token **lst, int *cmd);
+void	token_set_quotes(t_token *lst);
+void	print_token(t_token *lst);
+void	token_clear(t_token *lst);
+void	tokenizer(t_token **lst, char *token, t_token_type type);
+char	*word_else(char *line, int *i, int *start);
+char	*word(char *line, int *i);
+t_token	*set_tokens(char *line);
+
+void	free_split(char **split);
+void	free_redir(t_redir *redir);
+void	free_cmd(t_cmd *pipe);
+void	print_cmd_util(t_cmd *pipes);
+void	print_cmd(t_cmd *pipes);
+t_redir	*set_redir(t_token_type token, char *value);
+t_cmd	*init_pipes(t_token *lst);
+int		token_count(t_token *lst);
+int		set_args(t_cmd *pipes, t_token *lst);
+void	cmd_set_redir(t_cmd *pipes, t_token **current, t_redir **next);
+t_cmd	*parse_tokens(t_token *lst);
+void	parse_all_util2(t_token **tmp, t_token **current);
+void	parse_all_util(t_cmd **pipes, t_token **tmp,
+			t_token **start, t_token **current);
+t_cmd	*parse_all(t_token *lst);
+
+int		pipex(t_cmd *pipes, char **env);
+void	child1(t_cmd *pipes, char **env);
+void	set_fd(t_cmd *pipes);
+void	ft_free(void *ptr);
+int		prepare_heredocs(t_cmd *pipes);
+char	*strjoin_and_free(char *s1, char const *s2);
+
+void	sigint_handle(int sig);
+void	setup_signal(void);
+void	signal_child(void);
+void	sigint_heredoc(int sig);
+void	signal_heredoc(void);
+int		heredoc_interrupted(void);
+void	set_readline_state(int state);
+
+int		execute_builtin(t_cmd *pipes, t_env **env_list);
+int		check_builtin(t_cmd *pipes);
+
+int		cd_home(t_env **env_list, char *oldpwd);
+int		cd_oldpwd(t_env **env_list, char *oldpwd);
+int		cd_path(t_env **env_list, char *path, char *oldpwd);
+int		ft_cd(t_cmd *pipes, t_env **env_list);
+
+int		check_n(char *str);
+int		ft_echo(t_cmd *pipes);
+
+void	print_export(t_env *env);
+int		add_update_env(t_env **env_list, char *key, char *value);
+int		ft_export(t_cmd *pipes, t_env **env_list);
+
+void	set_env_value(t_env **env_list, char *key, char *value);
+int		ft_env(t_env *env);
+
+int		ft_exit(t_cmd *pipes, t_env **env_list);
+int		ft_pwd(void);
+int		ft_unset(t_cmd *pipes, t_env **env_list);
 
 #endif
