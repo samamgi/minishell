@@ -28,3 +28,11 @@
    fun:xmalloc
    fun:_rl_get_screen_size
 }
+
+{
+   readline_leak_5
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:add_history
+}

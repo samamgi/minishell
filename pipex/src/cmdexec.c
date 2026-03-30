@@ -13,6 +13,19 @@
 #include "../../minishell.h"
 #include "../inc/pipex.h"
 
+static void	child_cleanup_and_exit(int status, t_cmd *pipes, char **env)
+{
+	if (env)
+		free_split(env);
+	if (pipes)
+		free_cmd(pipes);
+	if (g_env_global)
+		free_env((t_env *)g_env_global);
+	clear_history();
+	rl_clear_history();
+	exit(status);
+}
+
 int	execslash(char *cmd, t_cmd *current, char *path, char **env)
 {
 	if ((ft_strnstr(cmd, "./", 2)) || !path || !env || (cmd[0] == '/') || (!cmd
@@ -41,18 +54,15 @@ void	execlast(t_exec *exec)
 		if (check_exist(path) == -1)
 		{
 			freeall(exec->slash, path, exec->split_path);
-			free_cmd(exec->pipes);
-			exit(126);
+			child_cleanup_and_exit(126, exec->pipes, exec->env);
 		}
 		execve(path, exec->current->args, exec->env);
 		freeall(exec->slash, path, exec->split_path);
-		free_cmd(exec->pipes);
-		exit(126);
+		child_cleanup_and_exit(126, exec->pipes, exec->env);
 	}
 	put_error(NULL, 1, exec->current->args);
 	freeall(exec->slash, path, exec->split_path);
-	free_cmd(exec->pipes);
-	exit(127);
+	child_cleanup_and_exit(127, exec->pipes, exec->env);
 }
 
 void	commande(char **env, t_cmd *pipes, t_cmd *current)
@@ -60,29 +70,27 @@ void	commande(char **env, t_cmd *pipes, t_cmd *current)
     char	*path;
     t_exec	exec;
     t_env	*env_list;
+	int		status;
 
     // Vérifier si c'est un builtin
     if (check_builtin(current))
     {
         env_list = set_env_list(env);
-        execute_builtin(current, &env_list);
+		status = execute_builtin(current, &env_list);
         free_env(env_list);
-        free_cmd(pipes);
-        exit(0);
+		child_cleanup_and_exit(status, pipes, env);
     }
     path = getpath(env);
     if (execslash(current->args[0], current, path, env) != 0)
     {
-        free_cmd(pipes);
-        exit(127);
+		child_cleanup_and_exit(127, pipes, env);
     }
     exec.slash = ft_strjoin("/", current->args[0]);
     exec.split_path = ft_split(path, ':');
     if (!exec.split_path || !exec.slash || !current->args)
     {
         freeall(exec.slash, path, exec.split_path);
-        free_cmd(pipes);
-        exit(-1);
+		child_cleanup_and_exit(1, pipes, env);
     }
     exec.env = env;
     exec.pipes = pipes;

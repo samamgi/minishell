@@ -25,8 +25,11 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 extern int g_signumber;
+extern struct s_env *g_env_global;
 
 int space(char c);
 

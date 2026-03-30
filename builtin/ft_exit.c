@@ -56,6 +56,8 @@ int ft_exit(t_cmd *pipes, t_env **env_list)
     if (!pipes->args[1])
     {
         ft_putendl_fd("exit", 2);
+		clear_history();
+		rl_clear_history();
         free_env(*env_list);
         free_cmd(pipes);
         exit(0);
@@ -66,6 +68,8 @@ int ft_exit(t_cmd *pipes, t_env **env_list)
         ft_putstr_fd("minishell: exit: ", 2);
         ft_putstr_fd(pipes->args[1], 2);
         ft_putendl_fd(": numeric argument required", 2);
+		clear_history();
+		rl_clear_history();
         free_env(*env_list);
         free_cmd(pipes);
         exit(2);
@@ -77,6 +81,8 @@ int ft_exit(t_cmd *pipes, t_env **env_list)
         return (1);
     }
     ft_putendl_fd("exit", 2);
+	clear_history();
+	rl_clear_history();
     free_env(*env_list);
     free_cmd(pipes);
     exit((unsigned char)exit_number);

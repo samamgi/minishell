@@ -85,6 +85,7 @@ char	*expand_variables(char *line, t_env *env_list)
 	int		i;
 	char	tmp[2];
 	char	*result;
+	char	*status;
 
 	if (ft_strlen(line) == 0)
 		return (NULL);
@@ -94,8 +95,18 @@ char	*expand_variables(char *line, t_env *env_list)
 	i = 0;
 	while (line[i])
 	{
-		if (line[i] == '$' && line[i + 1] && (ft_isalnum(line[i + 1]) || line[i
-					+ 1] == '_'))
+		if (line[i] == '$' && line[i + 1] == '?')
+		{
+			status = ft_itoa(g_signumber);
+			if (status)
+			{
+				result = strjoin_and_free(result, status);
+				free(status);
+			}
+			i += 2;
+		}
+		else if (line[i] == '$' && line[i + 1] && (ft_isalnum(line[i + 1])
+				|| line[i + 1] == '_'))
 			expand_util(line, &i, &result, env_list);
 		else
 		{

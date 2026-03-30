@@ -13,6 +13,7 @@
 #include "minishell.h"
 
 int g_signumber = 0;
+struct s_env *g_env_global = NULL;
 
 t_env *set_env_list(char **env)
 {
@@ -147,6 +148,93 @@ void	update_last_arg(t_env **env_list, char *cmd)
 		set_env_value(env_list, "_", cmd);
 }
 
+int	apply_redir_builtin(t_cmd *pipes, t_env **env_list)
+{
+	int		saved_stdin;
+	int		saved_stdout;
+	t_redir	*redir;
+	int		fd;
+	int		result;
+
+	saved_stdin = dup(STDIN_FILENO);
+	saved_stdout = dup(STDOUT_FILENO);
+	if (saved_stdin == -1 || saved_stdout == -1)
+	{
+		if (saved_stdin != -1)
+			close(saved_stdin);
+		if (saved_stdout != -1)
+			close(saved_stdout);
+		return (-1);
+	}
+	redir = pipes->redir;
+	while (redir)
+	{
+		if (redir->type == T_HEREDOC)
+		{
+			if (redir->heredoc_fd == -1)
+            {
+                dup2(saved_stdin, STDIN_FILENO);
+                dup2(saved_stdout, STDOUT_FILENO);
+                close(saved_stdin);
+                close(saved_stdout);
+                return (-1);
+            }
+			dup2(redir->heredoc_fd, STDIN_FILENO);
+			close(redir->heredoc_fd);
+		}
+		else if (redir->type == T_REDIR_IN)
+		{
+			fd = open(redir->file, O_RDONLY, 0644);
+			if (fd == -1)
+            {
+                dup2(saved_stdin, STDIN_FILENO);
+                dup2(saved_stdout, STDOUT_FILENO);
+                close(saved_stdin);
+                close(saved_stdout);
+                return (-1);
+            }
+			dup2(fd, STDIN_FILENO);
+			close(fd);
+		}
+		else if (redir->type == T_REDIR_OUT)
+		{
+			fd = open(redir->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+			if (fd == -1)
+            {
+                dup2(saved_stdin, STDIN_FILENO);
+                dup2(saved_stdout, STDOUT_FILENO);
+                close(saved_stdin);
+                close(saved_stdout);
+                return (-1);
+            }
+			dup2(fd, STDOUT_FILENO);
+			close(fd);
+		}
+		else if (redir->type == T_REDIR_APPEND)
+		{
+			fd = open(redir->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
+			if (fd == -1)
+            {
+                dup2(saved_stdin, STDIN_FILENO);
+                dup2(saved_stdout, STDOUT_FILENO);
+                close(saved_stdin);
+                close(saved_stdout);
+                return (-1);
+            }
+			dup2(fd, STDOUT_FILENO);
+			close(fd);
+		}
+		redir = redir->next;
+	}
+	result = execute_builtin(pipes, env_list);
+    g_signumber = result;
+	dup2(saved_stdin, STDIN_FILENO);
+	dup2(saved_stdout, STDOUT_FILENO);
+	close(saved_stdin);
+	close(saved_stdout);
+	return (result);
+}
+
 int main(int ac, char **av, char **env)
 {
     char *line;
@@ -156,6 +244,7 @@ int main(int ac, char **av, char **env)
     char **env_tab;
 
     setup_signal();
+    using_history();
     
     (void)ac;
     (void)av;
@@ -171,6 +260,7 @@ int main(int ac, char **av, char **env)
             increment_shlvl(&env_list);
         if (!env_list)
             ft_free(env_list);
+        g_env_global = env_list;
     }
     while (1)
     {
@@ -178,6 +268,7 @@ int main(int ac, char **av, char **env)
         pipes = NULL;
         lst = NULL;
         env_tab = NULL;
+        line = NULL;
         set_readline_state(1);
         line = readline("minishell: ");
         set_readline_state(0);
@@ -185,20 +276,32 @@ int main(int ac, char **av, char **env)
         {
             ft_putendl_fd("exit", 1);
             break;
-             //continue;
         }
+        if (line[0] != '\0')
+            add_history(line);
         if (syntax_checker(line) == 1)
         {
             line = expand_variables(line, env_list);
             lst = set_tokens(line);
             free(line);
+            line = NULL;
             pipes = parse_all(lst);
             prepare_heredocs(pipes);
             if (check_builtin(pipes) && !pipes->next)
             {
+                int	builtin_status;
+
                 if (pipes->args[0])
                     update_last_arg(&env_list, pipes->args[0]);
-                execute_builtin(pipes, &env_list);
+                if (pipes->redir)
+                    builtin_status = apply_redir_builtin(pipes, &env_list);
+                else
+                    builtin_status = execute_builtin(pipes, &env_list);
+                if (builtin_status >= 0)
+                    g_signumber = builtin_status;
+                else
+                    g_signumber = 1;
+                g_env_global = env_list;
                 free_cmd(pipes);
                 pipes = NULL;
                 continue;
@@ -216,7 +319,12 @@ int main(int ac, char **av, char **env)
                 env_tab = NULL;
             }
         }
+        if (line)
+            free(line);
     }
+    clear_history();
+    rl_clear_history();
     free_env(env_list);
+    g_env_global = NULL;
     return (0);
 }
