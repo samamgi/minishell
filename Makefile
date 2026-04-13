@@ -61,7 +61,7 @@ SRCS =	minishell.c \
 
 OBJS = $(SRCS:.c=.o)
 
-CC = gcc
+CC = cc
 CFLAGS = -Wall -Wextra -Werror -g
 LDFLAGS = -lreadline
 INCLUDES = -I. -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) -I$(PIPEX_DIR)/../inc
