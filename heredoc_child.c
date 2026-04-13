@@ -12,14 +12,15 @@
 
 #include "minishell.h"
 
-static void	heredoc_child_exit(int status, int write_fd, t_cmd *cmd_root)
+static void	heredoc_child_exit(int status, int write_fd, t_cmd *cmd_root,
+		t_env *env_list)
 {
 	if (write_fd >= 0)
 		close(write_fd);
 	if (cmd_root)
 		free_cmd(cmd_root);
-	if (g_shell.env_global)
-		free_env((t_env *)g_shell.env_global);
+	if (env_list)
+		free_env(env_list);
 	clear_history();
 	rl_clear_history();
 	exit(status);
@@ -63,15 +64,16 @@ static int	read_heredoc_content(char *delimiter, int write_fd)
 	}
 }
 
-int	run_heredoc_child(int write_fd, t_redir *redir, t_cmd *cmd_root)
+int	run_heredoc_child(int write_fd, t_redir *redir, t_cmd *cmd_root,
+		t_env *env_list)
 {
 	int	hd_status;
 
 	hd_status = read_heredoc_content(redir->file, write_fd);
 	if (hd_status == 130)
-		heredoc_child_exit(130, write_fd, cmd_root);
+		heredoc_child_exit(130, write_fd, cmd_root, env_list);
 	if (hd_status != 1)
-		heredoc_child_exit(1, write_fd, cmd_root);
-	heredoc_child_exit(0, write_fd, cmd_root);
+		heredoc_child_exit(1, write_fd, cmd_root, env_list);
+	heredoc_child_exit(0, write_fd, cmd_root, env_list);
 	return (0);
 }

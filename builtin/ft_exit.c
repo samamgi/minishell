@@ -80,7 +80,6 @@ int	ft_exit(t_cmd *pipes, t_env **env_list)
 	if (pipes->args[2])
 	{
 		ft_putendl_fd("minishell: exit: too many arguments", 2);
-		g_shell.signumber = 1;
 		return (1);
 	}
 	ft_putendl_fd("exit", 2);

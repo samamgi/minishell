@@ -13,7 +13,7 @@
 #include "../../minishell.h"
 #include "../inc/pipex.h"
 
-static void	wait_for_children(pid_t last_pid);
+static void	wait_for_children(pid_t last_pid, int *last_status);
 
 static pid_t	fork_and_exec(t_cmd *pipes, t_cmd *cur, char **env, int *fds)
 {
@@ -31,7 +31,8 @@ static pid_t	fork_and_exec(t_cmd *pipes, t_cmd *cur, char **env, int *fds)
 	return (pid);
 }
 
-static void	execute_child(t_cmd *pipes, t_cmd *current, char **env)
+static void	execute_child(t_cmd *pipes, t_cmd *current, char **env,
+		int *last_status)
 {
 	int		fds[3];
 	pid_t	last_pid;
@@ -55,10 +56,10 @@ static void	execute_child(t_cmd *pipes, t_cmd *current, char **env)
 		}
 		current = current->next;
 	}
-	wait_for_children(last_pid);
+	wait_for_children(last_pid, last_status);
 }
 
-static void	wait_for_children(pid_t last_pid)
+static void	wait_for_children(pid_t last_pid, int *last_status)
 {
 	pid_t	waited;
 	int		status;
@@ -72,14 +73,14 @@ static void	wait_for_children(pid_t last_pid)
 		if (waited == last_pid)
 		{
 			if (WIFEXITED(status))
-				g_shell.signumber = WEXITSTATUS(status);
+				*last_status = WEXITSTATUS(status);
 			else if (WIFSIGNALED(status))
-				g_shell.signumber = 128 + WTERMSIG(status);
+				*last_status = 128 + WTERMSIG(status);
 		}
 	}
 }
 
-static int	execute_single(t_cmd *pipes, char **env)
+static int	execute_single(t_cmd *pipes, char **env, int *last_status)
 {
 	pid_t	pid;
 	int		status;
@@ -95,20 +96,20 @@ static int	execute_single(t_cmd *pipes, char **env)
 	if (waitpid(pid, &status, 0) != -1)
 	{
 		if (WIFEXITED(status))
-			g_shell.signumber = WEXITSTATUS(status);
+			*last_status = WEXITSTATUS(status);
 		else if (WIFSIGNALED(status))
-			g_shell.signumber = 128 + WTERMSIG(status);
+			*last_status = 128 + WTERMSIG(status);
 	}
 	return (0);
 }
 
-int	pipex(t_cmd *pipes, char **env)
+int	pipex(t_cmd *pipes, char **env, int *last_status)
 {
 	if (!pipes)
 		return (1);
 	if (pipes->next != NULL)
-		execute_child(pipes, pipes, env);
+		execute_child(pipes, pipes, env, last_status);
 	else
-		return (execute_single(pipes, env));
+		return (execute_single(pipes, env, last_status));
 	return (0);
 }

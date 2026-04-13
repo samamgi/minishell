@@ -19,8 +19,6 @@ static void	child_cleanup_and_exit(int status, t_cmd *pipes, char **env)
 		free_split(env);
 	if (pipes)
 		free_cmd(pipes);
-	if (g_shell.env_global)
-		free_env((t_env *)g_shell.env_global);
 	clear_history();
 	rl_clear_history();
 	exit(status);

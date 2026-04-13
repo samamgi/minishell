@@ -42,11 +42,11 @@ char	*strjoin_and_free(char *s1, char const *s2)
 	return (free(s1), str);
 }
 
-static void	expand_status_value(char **result)
+static void	expand_status_value(char **result, int last_status)
 {
 	char	*status;
 
-	status = ft_itoa(g_shell.signumber);
+	status = ft_itoa(last_status);
 	if (status)
 	{
 		*result = strjoin_and_free(*result, status);
@@ -63,7 +63,8 @@ static void	append_plain_char(char **result, char c)
 	*result = strjoin_and_free(*result, tmp);
 }
 
-static void	expand_loop(char *line, t_env *env_list, char **result)
+static void	expand_loop(char *line, t_env *env_list, char **result,
+		int last_status)
 {
 	int	i;
 
@@ -72,7 +73,7 @@ static void	expand_loop(char *line, t_env *env_list, char **result)
 	{
 		if (line[i] == '$' && line[i + 1] == '?')
 		{
-			expand_status_value(result);
+			expand_status_value(result, last_status);
 			i += 2;
 		}
 		else if (line[i] == '$' && line[i + 1]
@@ -86,7 +87,7 @@ static void	expand_loop(char *line, t_env *env_list, char **result)
 	}
 }
 
-char	*expand_variables(char *line, t_env *env_list)
+char	*expand_variables(char *line, t_env *env_list, int last_status)
 {
 	char	*result;
 
@@ -94,8 +95,10 @@ char	*expand_variables(char *line, t_env *env_list)
 		return (NULL);
 	set_doublecotes(line);
 	result = malloc(1);
+	if (!result)
+		return (NULL);
 	result[0] = '\0';
-	expand_loop(line, env_list, &result);
+	expand_loop(line, env_list, &result, last_status);
 	set_doublecotes(result);
 	return (result);
 }

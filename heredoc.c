@@ -12,9 +12,10 @@
 
 #include "minishell.h"
 
-int	run_heredoc_child(int write_fd, t_redir *redir, t_cmd *cmd_root);
+int	run_heredoc_child(int write_fd, t_redir *redir, t_cmd *cmd_root,
+		t_env *env_list);
 
-static int	wait_heredoc_child(pid_t pid, int read_fd)
+static int	wait_heredoc_child(pid_t pid, int read_fd, int *last_status)
 {
 	int	status;
 
@@ -27,7 +28,7 @@ static int	wait_heredoc_child(pid_t pid, int read_fd)
 	if ((WIFEXITED(status) && WEXITSTATUS(status) == 130)
 		|| (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT))
 	{
-		g_shell.signumber = 130;
+		*last_status = 130;
 		close(read_fd);
 		return (0);
 	}
@@ -54,7 +55,8 @@ static int	start_heredoc_process(int pipefd[2], pid_t *pid)
 	return (1);
 }
 
-static int	setup_heredoc(t_redir *redir, t_cmd *cmd_root)
+static int	setup_heredoc(t_redir *redir, t_cmd *cmd_root, t_env *env_list,
+		int *last_status)
 {
 	int		pipefd[2];
 	pid_t	pid;
@@ -64,16 +66,17 @@ static int	setup_heredoc(t_redir *redir, t_cmd *cmd_root)
 	if (pid == 0)
 	{
 		close(pipefd[0]);
-		run_heredoc_child(pipefd[1], redir, cmd_root);
+		run_heredoc_child(pipefd[1], redir, cmd_root, env_list);
 	}
 	close(pipefd[1]);
-	if (!wait_heredoc_child(pid, pipefd[0]))
+	if (!wait_heredoc_child(pid, pipefd[0], last_status))
 		return (0);
 	redir->heredoc_fd = pipefd[0];
 	return (1);
 }
 
-static int	process_cmd_heredocs(t_cmd *cmd, t_cmd *cmd_root)
+static int	process_cmd_heredocs(t_cmd *cmd, t_cmd *cmd_root, t_env *env_list,
+		int *last_status)
 {
 	t_redir	*redir;
 
@@ -84,7 +87,7 @@ static int	process_cmd_heredocs(t_cmd *cmd, t_cmd *cmd_root)
 	{
 		if (redir->type == T_HEREDOC)
 		{
-			if (!setup_heredoc(redir, cmd_root))
+			if (!setup_heredoc(redir, cmd_root, env_list, last_status))
 				return (0);
 		}
 		redir = redir->next;
@@ -92,14 +95,14 @@ static int	process_cmd_heredocs(t_cmd *cmd, t_cmd *cmd_root)
 	return (1);
 }
 
-int	prepare_heredocs(t_cmd *pipes)
+int	prepare_heredocs(t_cmd *pipes, t_env *env_list, int *last_status)
 {
 	t_cmd	*current;
 
 	current = pipes;
 	while (current)
 	{
-		if (!process_cmd_heredocs(current, pipes))
+		if (!process_cmd_heredocs(current, pipes, env_list, last_status))
 			return (0);
 		current = current->next;
 	}

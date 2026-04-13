@@ -86,6 +86,5 @@ int	apply_redir_builtin(t_cmd *pipes, t_env **env_list)
 		redir = redir->next;
 	}
 	result = execute_builtin(pipes, env_list);
-	g_shell.signumber = result;
 	return (restore_std_fds(saved_stdin, saved_stdout, result));
 }

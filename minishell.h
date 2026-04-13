@@ -68,15 +68,7 @@ typedef struct s_env
 	struct s_env		*next;
 }t_env;
 
-typedef struct s_global
-{
-	int			signumber;
-	t_env		*env_global;
-	int			in_readline;
-	int			heredoc_interrupted;
-}t_global;
-
-extern t_global	g_shell;
+extern volatile sig_atomic_t	g_signal;
 
 int		space(char c);
 void	msg_syntax_error(char c);
@@ -96,7 +88,7 @@ void	free_env(t_env *env_list);
 void	increment_shlvl(t_env **env_list);
 void	update_last_arg(t_env **env_list, char *cmd);
 int		apply_redir_builtin(t_cmd *pipes, t_env **env_list);
-char	*expand_variables(char *line, t_env *env_list);
+char	*expand_variables(char *line, t_env *env_list, int last_status);
 
 void	set_rdappend(char *line, int *i, t_token **lst);
 void	set_heredoc(char *line, int *i, t_token **lst);
@@ -129,11 +121,11 @@ void	parse_all_util(t_cmd **pipes, t_token **tmp,
 			t_token **start, t_token **current);
 t_cmd	*parse_all(t_token *lst);
 
-int		pipex(t_cmd *pipes, char **env);
+int		pipex(t_cmd *pipes, char **env, int *last_status);
 void	child1(t_cmd *pipes, char **env);
 void	set_fd(t_cmd *pipes);
 void	ft_free(void *ptr);
-int		prepare_heredocs(t_cmd *pipes);
+int		prepare_heredocs(t_cmd *pipes, t_env *env_list, int *last_status);
 char	*strjoin_and_free(char *s1, char const *s2);
 
 void	sigint_handle(int sig);
@@ -142,7 +134,6 @@ void	signal_child(void);
 void	sigint_heredoc(int sig);
 void	signal_heredoc(void);
 int		heredoc_interrupted(void);
-void	set_readline_state(int state);
 
 int		execute_builtin(t_cmd *pipes, t_env **env_list);
 int		check_builtin(t_cmd *pipes);

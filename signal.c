@@ -12,26 +12,22 @@
 
 #include "minishell.h"
 
+volatile sig_atomic_t	g_signal = 0;
+
 void	sigint_handle(int sig)
 {
 	(void)sig;
-	g_shell.signumber = 130;
+	g_signal = SIGINT;
 	write(1, "\n", 1);
 	rl_on_new_line();
 	rl_replace_line("", 0);
-	if (g_shell.in_readline)
-		rl_redisplay();
+	rl_redisplay();
 }
 
 void	setup_signal(void)
 {
 	signal(SIGINT, sigint_handle);
 	signal(SIGQUIT, SIG_IGN);
-}
-
-void	set_readline_state(int state)
-{
-	g_shell.in_readline = state;
 }
 
 void	signal_child(void)
